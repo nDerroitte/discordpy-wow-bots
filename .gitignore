@@ -1,0 +1,11 @@
+2020_server/
+deployement/
+notcoping/
+Pem/
+safe_and_retreive/
+connectv2.sh
+copyv2.sh
+__pycache__/
+.env
+*_secret.json
+.DS_Store
