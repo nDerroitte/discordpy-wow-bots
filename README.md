@@ -1,6 +1,6 @@
 # Bot stuff
 
-This is a repo about me, making a bot to optimise a World of Warcraft gold boosting community generating hundreds of milions of gold, in a shitty way.
+This is a repo about making a bot to optimise a World of Warcraft gold boosting community generating hundreds of milions of gold, in a shitty way.
 
 ## How it works
 
@@ -44,3 +44,11 @@ A webhook needs to send the form answer to discord. I used a webhook I found on 
 ## Discord API
 
 Discord API can be found [here](https://discordpy.readthedocs.io/en/stable/api.html)
+
+
+## Code status 
+
+Most of the code should be rewritten. I started this project 1 year and a half ago. Most of the time working on this project is spent cringing about how bad part of the code is. 
+The 8000+ line of code could probably be reduced to 4000-5000 by introducing more function and avoid code copy/pasting.
+
+Also, hardcoding is everywhere. I know it's bad. Sometimes it is necesseray. Most of the time, I'm being lazy
