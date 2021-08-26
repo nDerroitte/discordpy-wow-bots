@@ -43,4 +43,4 @@ A webhook needs to send the form answer to discord. I used a webhook I found on 
 
 ## Discord API
 
-Discord API can be found (here)[https://discordpy.readthedocs.io/en/stable/api.html]
+Discord API can be found [here](https://discordpy.readthedocs.io/en/stable/api.html)
