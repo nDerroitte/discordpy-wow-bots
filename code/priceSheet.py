@@ -106,7 +106,6 @@ class priceSheet():
                         title = list_value[i]
                     if list_title[i].lower() == "emojis":
                         emojis = str(list_value[i])
-                        title = list_value[i]
                     if list_title[i].lower() == "top image":
                         top_image = list_value[i]
                     if list_title[i].lower() == "description":
@@ -148,7 +147,7 @@ class priceSheet():
         return return_list
 
     def price_sheet_name_mercs(self, title_input):
-        possibilites = ["pve", "pvp", "legacy"]
+        possibilites = ["pve", "pvp", "legacy", "mount"]
         for pos in possibilites:
             ack = self.price_sheet_name(pos, title_input)
             if ack != ["error"]:

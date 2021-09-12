@@ -374,15 +374,13 @@ class MainClient(discord.Client):
                                 boost.annoucement_chan = discord.utils.get(self.__guild.channels, id=self.__legacy)
                             roles = adv.roles
                             role_str = [y.name.lower() for y in roles]
-                            new_adv = False
-                            if "new advertiser" in role_str:
-                                new_adv = True
-                                if "alliance advertiser" in role_str or "horde advertiser" in role_str or "trusted advertiser" in role_str or "gold collector" in role_str:
-                                    new_adv = False
+                            new_adv = True
+                            if "advertiser alliance" in role_str or "advertiser horde" in role_str or "trusted advertiser" in role_str or "gold collector" in role_str:
+                                new_adv = False
                             if new_adv:
                                 # DM the new adv
                                 gold_collecting_chan = discord.utils.get(self.__guild.channels, id=self.__collecting_gold_id)
-                                embed_message = discord.Embed(title="Gold Collection", color=0x61b3f2, description="Thank you for your boost!\nAs you are a new advertiser, a Gold Collector will collect the gold before the boost is posted on discord.\nPlease check {} where you'll be able to see who you have to invite to collect the gold.".format(gold_collecting_chan.mention))#7FFF00
+                                embed_message = discord.Embed(title="Gold Collection", color=0x61b3f2, description="Thank you for your boost!\nAs you are not register as a regular advertiser, a Gold Collector will collect the gold before the boost is posted on discord.\nPlease check {} where you'll be able to see who you have to invite to collect the gold.".format(gold_collecting_chan.mention))#7FFF00
                                 embed_message.set_footer(text="Gino's Mercenaries")
                                 await adv.create_dm()
                                 await adv.dm_channel.send(embed= embed_message)
@@ -855,10 +853,10 @@ class MainClient(discord.Client):
                                 boost.message_annoucement = await boost.annoucement_chan.send(embed=em)
                                 gc_em = discord.Embed(title="Thanks for collecting the gold!", color=0x61b3f2)#7FFF00
                                 if boost.type == "mm":
-                                    gc_em.add_field(name="Mail message", value = "Please put the  **new advertiser's discord name as mail title** and copy/paste the following message for the body:```+{} - {}```".format(boost.key_level, boost.message_annoucement.id), inline=False)
+                                    gc_em.add_field(name="Mail message", value = "Please put the **discord name of the advertiser you're helping as mail title** and copy/paste the following message for the body:```+{} - {}```".format(boost.key_level, boost.message_annoucement.id), inline=False)
                                 else:
-                                    gc_em.add_field(name="Mail message", value = "Please put the  **new advertiser's discord name as mail title** and copy/paste the following message for the body:```{} - {}```".format(boost.type, boost.message_annoucement.id), inline=False)
-                                gc_em.add_field(name="New advertiser's name", value = "{}".format(boost.advertiser.display_name), inline=False)
+                                    gc_em.add_field(name="Mail message", value = "Please put the **discord name of the advertiser you're helping as mail title** and copy/paste the following message for the body:```{} - {}```".format(boost.type, boost.message_annoucement.id), inline=False)
+                                gc_em.add_field(name="Advertiser's name", value = "{}".format(boost.advertiser.display_name), inline=False)
                                 gc_em.add_field(name="Collection realm", value = "{}".format(boost.real_realm.capitalize()), inline=True)
                                 if boost.gold_faction.lower() == "alliance":
                                     gc_em.add_field(name="Who to mail", value = "MercsAlly-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
@@ -957,7 +955,6 @@ class MainClient(discord.Client):
                             if emoji == self.allowed_emo:
                                 if boost.advertiser.id == user.id or user.id == self.__day_id or (boost.helper != "" and boost.helper.id == user.id):
                                     if boost.booster_place <= 0 or (boost.tank_in != "" and boost.heal_in != "" and boost.dps_in[0] != "" and boost.dps_in[1] != ""):
-                                        print(boost.booster_place)
                                         await boost.message_annoucement.clear_reactions()
                                         await boost.message_annoucement.add_reaction(self.allowed_emo)
                                         await boost.message_annoucement.add_reaction(self.denied_emo)
@@ -1076,9 +1073,9 @@ class MainClient(discord.Client):
                                             embed_message_adv = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
                                             embed_message_adv.add_field(name="Thank you!", value = "The boost has been added to the balance!\nThank you for advertising with us!", inline=False)
                                             if boost.type == "mm":
-                                                embed_message_adv.add_field(name="Mail message", value = "Please put your **discord name as mail title** and copy/paste the following message for the body:```+{} - {}```If you are a New Advertiser, ignore this: the gold collector will mail the gold for you!".format(boost.key_level, boost.message_annoucement.id), inline=False)
+                                                embed_message_adv.add_field(name="Mail message", value = "Please put your **discord name as mail title** and copy/paste the following message for the body:```+{} - {}```If you are a not a regular advertiser, ignore this: the gold collector will mail the gold for you!".format(boost.key_level, boost.message_annoucement.id), inline=False)
                                             else:
-                                                embed_message_adv.add_field(name="Mail message", value = "Please put your **discord name as mail title** and copy/paste the following message for the body:```{} - {}```If you are a New Advertiser, ignore this: the gold collector will mail the gold for you!".format(boost.type, boost.message_annoucement.id), inline=False)
+                                                embed_message_adv.add_field(name="Mail message", value = "Please put your **discord name as mail title** and copy/paste the following message for the body:```{} - {}```If you are a not a regular advertiser, ignore this: the gold collector will mail the gold for you!".format(boost.type, boost.message_annoucement.id), inline=False)
                                             if "-" not in boost.realm and boost.realm.upper() != "GINOS":
                                                 embed_message_adv.add_field(name="Collection realm", value = "{}".format(boost.real_realm.capitalize()), inline=True)
                                                 if boost.gold_faction.lower() == "alliance":
@@ -1473,7 +1470,6 @@ class MainClient(discord.Client):
         try:
             channel = discord.utils.get(self.__guild.channels, id=payload.channel_id, type=discord.ChannelType.text)
             message = await channel.fetch_message(payload.message_id)
-            print(message.reactions)
             user = discord.utils.get(self.__guild.members, id=payload.user_id)
             emoji = payload.emoji
             if user.id != self.__bot_id:

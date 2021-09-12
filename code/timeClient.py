@@ -17,11 +17,9 @@ class timeClient(discord.Client):
     def __init__(self, guild_name):
         self.guild_name = guild_name
         self.__day_id = 302188753206771714
-        self.__boost_annoucement_list_id = [628751808512393246,628751835695677471,676080492998688798]
-        self.__bot_id = 768010799867887637
         self.giveaway_list = []
         dt_wanted = datetime.now() + timedelta(days=1)
-        self.next_run = datetime(dt_wanted.year, dt_wanted.month, dt_wanted.day, 0, 0)
+        self.next_run = datetime(dt_wanted.year, dt_wanted.month, dt_wanted.day, 15, 0)
         self.invites_dict = {}
 
         intents = discord.Intents.all()
@@ -93,54 +91,94 @@ class timeClient(discord.Client):
 
         # reset all star
         elif message.channel.name == "private-bot-commands" and message.content == "!reset91":
-            # STEP 1 : Remove prestige if not all started
+            # STEP DURING : Upgrade prestige that deserves it
             boosters = []
-            all_members = message.guild.members#list(self.get_all_members())
+            all_members = message.guild.members
             for i in range(len(all_members)):
                 roles_str = [o.name.lower() for o in all_members[i].roles]
                 if "m+ prestige" in roles_str and "m+ allstars" not in roles_str:
                     boosters.append(all_members[i])
-            print(len(boosters))
             len_to_update_members = len(boosters)
+            count = 0
             for i in range(len_to_update_members):
+                if i % 100 == 0 :
+                    print(f'{i} / {len_to_update_members}')
                 booster = boosters.pop()
                 roles_str = [y.name.lower() for y in booster.roles]
-                if "m+ prestige" in roles_str:
-                    m_all_star = discord.utils.get(self.__guild.roles, name='M+ Prestige')
-                    await booster.remove_roles(m_all_star)
-                if "healer prestige" in roles_str:
-                    healer_all_star = discord.utils.get(self.__guild.roles, name='Healer Prestige')
-                    await booster.remove_roles(healer_all_star)
-                if "tank prestige"  in roles_str:
-                    tank_all_star = discord.utils.get(self.__guild.roles, name='Tank Prestige')
-                    await booster.remove_roles(tank_all_star)
-                if "dps prestige"  in roles_str:
-                    dps_all_star = discord.utils.get(self.__guild.roles, name='DPS Prestige')
-                    await booster.remove_roles(dps_all_star)
-            # STEP 2 : Remove All star role
-            boosters = []
-            all_members = message.guild.members#list(self.get_all_members())
-            for i in range(len(all_members)):
-                roles_str = [o.name for o in all_members[i].roles]
-                if "M+ AllStars" in roles_str:
-                    boosters.append(all_members[i])
-            print(len(boosters))
-            len_to_update_members = len(boosters)
-            for i in range(len_to_update_members):
-                booster = boosters.pop()
-                roles_str = [y.name.lower() for y in booster.roles]
-                if "m+ allstars" in roles_str:
-                    m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
-                    await booster.remove_roles(m_all_star)
-                if "healer all star" in roles_str:
-                    healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
-                    await booster.remove_roles(healer_all_star)
-                if "tank all star"  in roles_str:
-                    tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
-                    await booster.remove_roles(tank_all_star)
-                if "dps all star"  in roles_str:
-                    dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
-                    await booster.remove_roles(dps_all_star)
+                user_name_serv = parseName(booster.display_name)
+                get_url = "https://raider.io/api/v1/characters/profile?region=eu&realm={}&name={}&fields=mythic_plus_scores_by_season%3Acurrent".format(user_name_serv[1].lower(),user_name_serv[0].lower().capitalize())
+                r = requests.get(get_url)
+                if r.status_code == 200:
+                    data = r.json()
+                    rio_heal = data["mythic_plus_scores_by_season"][0]['scores']['healer']
+                    rio_tank = data["mythic_plus_scores_by_season"][0]['scores']['tank']
+                    rio_dps = data["mythic_plus_scores_by_season"][0]['scores']['dps']
+                    if rio_tank > 2150 or rio_heal > 2150 or rio_dps > 2150:
+                        count += 1 
+                        print(user_name_serv)
+                        if "m+ allstars" not in roles_str:
+                            m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
+                            await booster.add_roles(m_all_star)
+                        if rio_heal > 2150 and "healer all star" not in roles_str:
+                            healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
+                            await booster.add_roles(healer_all_star)
+                        if rio_tank > 2150 and "tank all star" not in roles_str:
+                            tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
+                            await booster.add_roles(tank_all_star)
+                        if rio_dps > 2150 and "dps all star" not in roles_str:
+                            dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
+                            await booster.add_roles(dps_all_star)
+            
+            print(count)
+            await message.add_reaction(self.allowed_emo)
+            # STEP 1 : Remove prestige if not all started
+            # boosters = []
+            # all_members = message.guild.members#list(self.get_all_members())
+            # for i in range(len(all_members)):
+            #     roles_str = [o.name.lower() for o in all_members[i].roles]
+            #     if "m+ prestige" in roles_str and "m+ allstars" not in roles_str:
+            #         boosters.append(all_members[i])
+            # print(len(boosters))
+            # len_to_update_members = len(boosters)
+            # for i in range(len_to_update_members):
+            #     booster = boosters.pop()
+            #     roles_str = [y.name.lower() for y in booster.roles]
+            #     if "m+ prestige" in roles_str:
+            #         m_all_star = discord.utils.get(self.__guild.roles, name='M+ Prestige')
+            #         await booster.remove_roles(m_all_star)
+            #     if "healer prestige" in roles_str:
+            #         healer_all_star = discord.utils.get(self.__guild.roles, name='Healer Prestige')
+            #         await booster.remove_roles(healer_all_star)
+            #     if "tank prestige"  in roles_str:
+            #         tank_all_star = discord.utils.get(self.__guild.roles, name='Tank Prestige')
+            #         await booster.remove_roles(tank_all_star)
+            #     if "dps prestige"  in roles_str:
+            #         dps_all_star = discord.utils.get(self.__guild.roles, name='DPS Prestige')
+            #         await booster.remove_roles(dps_all_star)
+            # # STEP 2 : Remove All star role
+            # boosters = []
+            # all_members = message.guild.members#list(self.get_all_members())
+            # for i in range(len(all_members)):
+            #     roles_str = [o.name for o in all_members[i].roles]
+            #     if "M+ AllStars" in roles_str:
+            #         boosters.append(all_members[i])
+            # print(len(boosters))
+            # len_to_update_members = len(boosters)
+            # for i in range(len_to_update_members):
+            #     booster = boosters.pop()
+            #     roles_str = [y.name.lower() for y in booster.roles]
+            #     if "m+ allstars" in roles_str:
+            #         m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
+            #         await booster.remove_roles(m_all_star)
+            #     if "healer all star" in roles_str:
+            #         healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
+            #         await booster.remove_roles(healer_all_star)
+            #     if "tank all star"  in roles_str:
+            #         tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
+            #         await booster.remove_roles(tank_all_star)
+            #     if "dps all star"  in roles_str:
+            #         dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
+            #         await booster.remove_roles(dps_all_star)
             print("all done")
 
         elif message.channel.name == "private-bot-commands" and message.content == "!invites":
@@ -277,8 +315,8 @@ class timeClient(discord.Client):
                 ask_message.add_field(name="\u200b", value = "{}".format('\n'.join([x.mention for x in triple_list[2]])), inline=True)
             else:
                 ask_message.add_field(name="\u200b", value = "\u200b", inline=True)
-            ask_message.add_field(name="Promotion", value = "To thank you, we'd like to offer you a 10% reduction on any boost you'd like. Please head over to {} to claim your promotion!".format(rqst_chan.mention), inline=True)
+            ask_message.add_field(name="Promotion", value = "To thank you, we'd like to offer you a 10% reduction on any boost you'd like. Please contact your favorite advertiser or head over to {} to claim your promotion!".format(rqst_chan.mention), inline=True)
             ask_message.set_footer(text="Gino's Mercenaries")
-            chan = discord.utils.get(self.__guild.channels, id=838905781898313747, type=discord.ChannelType.text)
+            chan = discord.utils.get(self.__guild.channels, id=886389884984651897, type=discord.ChannelType.text)
             await chan.send(embed=ask_message)
             await chan.send("{} \nHappy one-year-with-us birthday! :tada:".format(', '.join([x.mention for x in birthday_members])))

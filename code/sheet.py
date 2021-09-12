@@ -387,12 +387,12 @@ class sheetReader:
                     if list_names_ally[i].lower() == name_gc and list_servers_ally[i].lower() == serv_gc:
                         count -= 1
                         formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(boost.gold * 0.05)
+                        formula += "+" + str(boost.gold * 0.03)
                         self.sheet1.update_cell(i+1, 5, formula)
                     if list_names_ally[i].lower() == name_adv and list_servers_ally[i].lower() == serv_adv:
                         count -= 1
                         formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "-" + str(boost.gold * 0.05)
+                        formula += "-" + str(boost.gold * 0.03)
                         self.sheet1.update_cell(i+1, 5, formula)
                 for j in range(0,len(list_names_horde)):
                     if count == 0:
@@ -400,12 +400,12 @@ class sheetReader:
                     if list_names_horde[j].lower() == name_gc and list_servers_horde[j].lower() == serv_gc:
                         count -= 1
                         formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(boost.gold * 0.05)
+                        formula += "+" + str(boost.gold * 0.03)
                         self.sheet1.update_cell(j+1, 13, formula)
                     if list_names_horde[j].lower() == name_adv and list_servers_horde[j].lower() == serv_adv:
                         count -= 1
                         formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
-                        formula += "-" + str(boost.gold * 0.05)
+                        formula += "-" + str(boost.gold * 0.03)
                         self.sheet1.update_cell(j+1, 13, formula)
             sheet2.update_cell(index, 5, boost.gold)
             sheet2.update_cell(index,14, "No")

@@ -28,9 +28,9 @@ class strikeClient(discord.Client):
         self.__day_id = 302188753206771714
         self.testy = False
         self.to_update_members = []
-        self.booking_id = 1631 + 1
-        self.ticket_id = 1356 + 1
-        self.help_id = 92 + 1
+        self.booking_id = 1693 + 1
+        self.ticket_id = 1397 + 1
+        self.help_id = 100 + 1
         self.giveaway_list = []
         self.real_list_nitro = []
         self.list_nitro_str = ""
@@ -39,7 +39,7 @@ class strikeClient(discord.Client):
             self.__bot_id = 733080115306561636
             self.__strike_chan_id = 654520688870293525
             self.__booking_chan_id = 757163555815686144
-            self.price_dict = {683130342651068426 : "pveally", 880528230803722270 : "pvehorde", 633334207334055948 :"pvp", 676097936584867850 : "legacy", 677127738993279010 : "mercs"}
+            self.price_dict = {683130342651068426 : "pveally", 880528230803722270 : "pvehorde", 633334207334055948 :"pvp", 676097936584867850 : "legacy", 886031845190402048 : "mount",  677127738993279010 : "mercs"}
             self.__mercs_chan_id = 677127738993279010
             self.__mercs_ticket_id = 794724553661480960
             self.__mercs_help_id = 818614702003191848
@@ -443,6 +443,10 @@ class strikeClient(discord.Client):
                     id = message.content.split("!pricelegacy",1)[1]
                     pc = priceSheet()
                     return_dict = pc.price_sheet("legacy", id)
+                if message.content.startswith("!pricemount"):
+                    id = message.content.split("!pricemount",1)[1]
+                    pc = priceSheet()
+                    return_dict = pc.price_sheet("mount", id)
                 if message.content.startswith("!pricehotdeals"):
                     id = message.content.split("!pricehotdeals",1)[1]
                     pc = priceSheet()
@@ -477,7 +481,7 @@ class strikeClient(discord.Client):
                     embed_message.set_footer(text="Gino's Mercenaries")
                     if return_dict[1] != "":
                         embed_image = discord.Embed(color=0x9acd32)
-                        embed_message.set_image(url=return_dict[1])
+                        embed_image.set_image(url=return_dict[1])
                     try:
                         await price_channel.send(embed= embed_image)
                     except:
@@ -569,6 +573,8 @@ class strikeClient(discord.Client):
                         member = discord.utils.get(self.__guild.members, id=int(tag))
                         await member.create_dm()
                         await member.dm_channel.send(embed = embed_rooster)
+            
+            # giveway
             if len(self.giveaway_list) > 0 and channel.id == self.giveaway_list[0].channel_id and user.id != self.__bot_id:
                 for ga in self.giveaway_list:
                     if message.id == ga.message.id:
@@ -608,6 +614,7 @@ class strikeClient(discord.Client):
                                 await message.remove_reaction(emoji, user)
                         break
 
+            # tickets
             if channel.id == self.__mercs_ticket_id and user.id != self.__bot_id:
                 mod_role = discord.utils.get(self.__guild.roles, name='Moderator')
                 supp_role = discord.utils.get(self.__guild.roles, name='Support')
@@ -632,6 +639,7 @@ class strikeClient(discord.Client):
                 self.ticket_id += 1
                 await message.remove_reaction(emoji,user)
 
+            # help
             if channel.id == self.__mercs_help_id and user.id != self.__bot_id:
                 mod_role = discord.utils.get(self.__guild.roles, name='Support')
                 category = channel.category #discord.utils.get(self.__guild.categories, id=834900314057998366)
@@ -654,6 +662,8 @@ class strikeClient(discord.Client):
                 self.help_id += 1
                 await message.remove_reaction(emoji,user)
 
+
+            # bookings
             if channel.id == self.__booking_chan_id and user.id != self.__bot_id:
                 trusted_role = discord.utils.get(self.__guild.roles, name='Trusted Advertiser')
                 category = channel.category
@@ -692,6 +702,7 @@ class strikeClient(discord.Client):
                 self.booking_id += 1
                 await message.remove_reaction(emoji,user)
 
+            # delete help
             if channel.name.startswith("help-") and user.id != self.__bot_id:
                 if emoji == self.allowed_emo and len(message.embeds)> 0:
                     mod_role = discord.utils.get(self.__guild.roles, name='Support')
@@ -707,6 +718,7 @@ class strikeClient(discord.Client):
                 if emoji == self.denied_emo and len(message.embeds)> 0:
                     await channel.delete()
 
+            # delete ticket
             if channel.name.startswith("ticket") and user.id != self.__bot_id:
                 if emoji == self.allowed_emo and len(message.embeds)> 0:
                     mod_role = discord.utils.get(self.__guild.roles, name='Moderator')
@@ -723,6 +735,8 @@ class strikeClient(discord.Client):
                     await tmp_message.add_reaction(self.denied_emo)
                 if emoji == self.denied_emo and len(message.embeds)> 0:
                     await channel.delete()
+            
+            # delete bookings
             if channel.name.startswith("booking") and user.id != self.__bot_id:
                 if emoji == self.allowed_emo and len(message.embeds)> 0:
                     trusted_role = discord.utils.get(self.__guild.roles, name='Trusted Advertiser')
@@ -737,6 +751,8 @@ class strikeClient(discord.Client):
                     await tmp_message.add_reaction(self.denied_emo)
                 if emoji == self.denied_emo and len(message.embeds)> 0:
                     await channel.delete()
+            
+            # price wrench
             if (channel.id in self.price_dict or channel.id == self.__mercs_chan_id) and user.id != self.__bot_id:
                 try:
                     chan_name  = self.price_dict[channel.id]
@@ -749,7 +765,6 @@ class strikeClient(discord.Client):
                             title = message.embeds[0].title
                             pc = priceSheet()
                             return_dict = pc.price_sheet_name(chan_name, title)
-                            price_channel = discord.utils.get(self.__guild.channels, id=return_dict[0], type=discord.ChannelType.text)
                             emo = []
                             try:
                                 for emo_str in return_dict[5].split(" "):
