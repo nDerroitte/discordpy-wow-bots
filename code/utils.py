@@ -149,6 +149,13 @@ def get_name_realm_aura(message):
     return name_realm
 
 
+def get_faction(message):
+    if "alliance" in message.lower():
+        return "alliance"
+    else:
+        return  "horde"
+
+
 def get_name_realm(message):
     name_realm = ""
     for line in message.splitlines():

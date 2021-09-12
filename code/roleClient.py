@@ -27,25 +27,17 @@ class RoleClient(discord.Client):
             self.__bot_id = 686611501389316108
             self.__ally_mm =628751808512393246
             self.__horde_mm =628751835695677471
-            self.__pvp = 676080492998688798
             self.__apply_adv_chan_list_id = 629129518623227914
-            self.__boost_annoucement_list_id = [628751808512393246,628751835695677471,676080492998688798]
             self.__apply_chan_list_id = [714816319551176794, 628755009663795210, 697614090650255390, 705477154409939054, 682660687905947688]
             self.__m_apply = 714816319551176794
-            self.__bet_chan_list_id = [709019009106051104, 709019069206233199, 709019109257642014]
-            self.__strike_chan_id = 654520688870293525
+            self.__raid_apply  = 697614090650255390
         else:
             # Jmone
-            self.__collecting_gold_id = 741569122957262849
             self.__bot_id = 686307367343751317
             self.__ally_mm =691328217721733140
             self.__horde_mm =691771703830773780
-            self.__pvp = 691771677390143568
-            self.__boost_annoucement_list_id = [691328217721733140,691771703830773780,691771677390143568]
             self.__apply_chan_list_id = [688931455929548812]
             self.__apply_adv_chan_list_id = 2
-            self.__bet_chan_list_id = [708975742242914314, 706436097504182292, 708975772072935424]
-            self.__strike_chan_id = 654520688870293525
 
         intents = discord.Intents.all()
         super(RoleClient, self).__init__(intents=intents)
@@ -139,8 +131,8 @@ class RoleClient(discord.Client):
                     embed_message.set_footer(text="Gino's Mercenaries")
                     await casgino_info_chan.send(embed=embed_message)
 
-        ############################ Check balance ############################
 
+        ############################ apply format check ############################
 
 
         elif message.channel.id == self.__m_apply:
@@ -153,6 +145,17 @@ class RoleClient(discord.Client):
                 await message.channel.send(embed=embed_message)
                 await message.add_reaction(self.denied_emo)
 
+        elif message.channel.id == self.__raid_apply:
+            roles = message.author.roles
+            roles_str = [y.name.lower() for y in roles]
+            if "customer" in roles_str and  ("name-realm" not in message.content.lower() or ( "alliance" not in message.content.lower() and "horde" not in message.content.lower())):
+                embed_message = discord.Embed(title="Please follow the format!", description="Hello {}. Thank you for your application but could you please re-apply using our application format.".format(message.author.mention), color=0xffd700)#7FFF00
+                embed_message.add_field(name="Format", value = "```Name-realm:\nFaction:\nApplying for:\nVouching for you:\nWarcraft Logs: ```", inline=False)
+                embed_message.set_footer(text="Gino's Mercenaries")
+                await message.channel.send(embed=embed_message)
+                await message.add_reaction(self.denied_emo)
+
+        ############################ Check balance ############################
 
         elif "check-balance" in message.channel.name and message.content == "!b":
             user_id = message.author.id
@@ -451,8 +454,9 @@ class RoleClient(discord.Client):
 
         ############################## mm - roles #############################
         elif "other-roles" in message.channel.name and "https://raider.io/characters/" in message.content:
-            mm_roles = discord.utils.get(self.__guild.channels, name='🔰m-roles', type=discord.ChannelType.text)
-            await message.channel.send("Hi {}.\nI saw that you linked a raider.io profile. \nFor any M+ related roles, please consider using {}.\nIf your request is not related to M+, someone will handle it soon! :smile:.".format(message.author.mention, mm_roles.mention))
+            mm_roles = discord.utils.get(self.__guild.channels, name='🔰team-apply', type=discord.ChannelType.text)
+            team_roles = discord.utils.get(self.__guild.channels, name='🔰m-roles', type=discord.ChannelType.text)
+            await message.channel.send("Hi {}.For any M+ related roles, please consider using {}. For team creation, head over to {}. \nIf your request is not related to M+, someone will handle it soon!".format(message.author.mention, team_roles.mention, mm_roles.mention))
 
         ############################## reload #############################
         elif message.channel.name == "private-bot-commands" and message.content.startswith("!rename"):
@@ -518,7 +522,6 @@ class RoleClient(discord.Client):
                                 name = val[0].capitalize()
                                 realm = val[1].capitalize()
                                 name_realm = name + "-" + realm
-                                print(name_realm)
                             except:
                                 pass
                             await message.author.edit(nick=name_realm)
@@ -583,6 +586,31 @@ class RoleClient(discord.Client):
                                     if rio_dps > 2150:
                                         dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
                                         await message.author.add_roles(dps_all_star)
+                        if "raider" in channel.name:
+                            # GET NAME and rename:
+                            name_realm = get_name_realm(message.content)
+                            faction = get_faction(message.content)
+                            user_name_realm = parseName(name_realm)
+                            try:
+                                val = name_realm.split("-")
+                                name = val[0].capitalize()
+                                realm = val[1].capitalize()
+                                name_realm = name + "-" + realm
+                            except:
+                                pass
+                            await message.author.edit(nick=name_realm)
+                            # roles
+                            roles = message.author.roles
+                            roles_str = [y.name.lower() for y in roles]
+                            if "customer" in roles_str:
+                                customer_role = discord.utils.get(self.__guild.roles, name='Customer')
+                                await message.author.remove_roles(customer_role)
+                            if faction == "horde":
+                                fact = discord.utils.get(self.__guild.roles, name='Raider Horde')
+                                await message.author.add_roles(fact)
+                            else:
+                                fact = discord.utils.get(self.__guild.roles, name='Raider Alliance')
+                                await message.author.add_roles(fact)
                         # MESSAGE:
                         mm_roles_chan = discord.utils.get(self.__guild.channels, name='🔰m-roles', type=discord.ChannelType.text)
                         other_role_chan = discord.utils.get(self.__guild.channels, name='🔰other-roles', type=discord.ChannelType.text)
