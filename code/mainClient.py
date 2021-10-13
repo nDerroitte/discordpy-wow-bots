@@ -91,7 +91,7 @@ class MainClient(discord.Client):
     ###########################################################################
     async def on_message(self, message):
         try:
-        ######################### Private message ############################
+            ######################### Private message ############################
             if message.channel.type == discord.ChannelType.private:
                 # Close
                 if message.content.lower() == "close":

@@ -147,7 +147,7 @@ class priceSheet():
         return return_list
 
     def price_sheet_name_mercs(self, title_input):
-        possibilites = ["pveally", "pvehorde", "pvp", "legacy", "mount"]
+        possibilites = ["pveally", "pvehorde", "pvp", "legacy", "mount", "tcg"]
         for pos in possibilites:
             ack = self.price_sheet_name(pos, title_input)
             if ack != ["error"]:

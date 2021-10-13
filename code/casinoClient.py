@@ -1,6 +1,4 @@
 from datetime import datetime
-import json
-import requests
 import discord
 import os
 import asyncio
@@ -15,18 +13,24 @@ class casinoClient(discord.Client):
     def __init__(self, guild_name):
         self.guild_name = guild_name
         self.__list_admin_roles = ["EN - Manager", "Developer"]
-        self.__list_bot_roles = ["Bot"]
-        self.__list_modo_roles = ["EN - Manager", "Developer", "Moderator"]
         self.__bets = []
         self.__dr_bet = []
         self.__me_win = False
         self.__day_id = 302188753206771714
-        self.__celia_id = 241268386250752000
         self.testy = False
+        self.lottery_pot = 0
+        self.lottery_1st = 0
+        self.lottery_2nd = 0
+        self.lottery_3rd = 0
+        self.lottery_ticket = 0
+        self.lottery_entries = 0
+        self.lottery_default_ticket = 30000
+        self.lottery_time_remaining =  0
         if self.testy == False:
             # Gino
             self.__bot_id = 725313938895667210
             self.__bet_chan_list_id = [709019009106051104, 709019069206233199, 709019109257642014]
+            self.__lottery_id = 886705583556821003
         else:
             # Jmone
             self.__bot_id = 686307367343751317
@@ -45,6 +49,8 @@ class casinoClient(discord.Client):
         self.allowed_emo = discord.utils.get(self.__guild.emojis, name ="allowed")
         self.denied_emo = discord.utils.get(self.__guild.emojis, name ="denied")
         self.chip_emo = discord.utils.get(self.__guild.emojis, name="chip")
+        self.coin_emo = discord.utils.get(self.__guild.emojis, name="gold_coin")
+        print("ready")
 
     ###########################################################################
     #                              On message receive                         #
@@ -99,8 +105,6 @@ class casinoClient(discord.Client):
                 user_id = message.author.id
                 if user_id == self.__day_id:
                     # TAGS
-                    celia = discord.utils.get(self.__guild.members, id=self.__celia_id)
-                    day = discord.utils.get(self.__guild.members, id=self.__day_id)
                     casgino_info_chan = discord.utils.get(self.__guild.channels, name='casgino-bot-information', type=discord.ChannelType.text)
                     casgino_role_chan = discord.utils.get(self.__guild.channels, name='gambler-role', type=discord.ChannelType.text)
                     gambler_tag = discord.utils.get(self.__guild.roles, name = 'Gambler')
@@ -119,8 +123,25 @@ class casinoClient(discord.Client):
                     embed_message.set_footer(text="Gino's Mercenaries")
                     await casgino_info_chan.send(embed=embed_message)
 
+        # rename reloading
         elif message.channel.name == "private-bot-commands" and message.content.startswith("!rename"):
             reload_dict()
+            await message.add_reaction(self.allowed_emo)
+        
+        # lottery
+        elif message.channel.name == "private-bot-commands" and message.content.startswith("!lottery"):
+            sr = sheetReader()
+            self.lottery_time_remaining = sr.close_lottery_date() - datetime.now() 
+            str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
+            lottery_chan = discord.utils.get(self.__guild.channels, id=self.__lottery_id, type=discord.ChannelType.text)
+            self.lottery_ticket = self.lottery_default_ticket
+            self.lottery_pot = self.lottery_ticket
+            self.lottery_entries = 0
+            self.lottery_1st, self.lottery_2nd, self.lottery_3rd = define_lottery_pot(self.lottery_pot)
+            
+            lottery_embed = await self.lottery_embed(str_time_remaining)
+            tmp = await lottery_chan.send(embed= lottery_embed)
+            await tmp.add_reaction(self.chip_emo)
             await message.add_reaction(self.allowed_emo)
 
         ############################## Casgino $$ #############################
@@ -796,3 +817,18 @@ class casinoClient(discord.Client):
             day_member = discord.utils.get(self.__guild.members, id=self.__day_id)
             await day_member.create_dm()
             await day_member.dm_channel.send(embed=embed_error)
+
+    ###########################################################################
+    #                           Class Specific functions                      #
+    ###########################################################################
+    # lottery embed
+
+    async def lottery_embed(self, str_time_remaining):
+        lottery_em = discord.Embed(title="Gino {} Lottery".format(datetime.now().strftime("%B")), description="Up to {:,} {} to win! Join by reacting with {}.".format(self.lottery_1st, self.coin_emo, self.chip_emo), color=0x00b967 )
+        lottery_em.add_field(name="Entries:", value="{:,} {}".format(self.lottery_entries, self.chip_emo), inline = True)
+        lottery_em.add_field(name="Ticket price:", value="{:,} {}".format(self.lottery_ticket, self.coin_emo), inline = True)
+        lottery_em.add_field(name="\u200b", value="\u200b", inline = True)
+        lottery_em.add_field(name="Prizes:", value=":first_place: {0:,} {1} \n :second_place: {2:,} {1}\n:third_place: {3:,} {1}".format(self.lottery_1st, self.coin_emo, self.lottery_2nd, self.lottery_3rd), inline = False)
+        lottery_em.add_field(name="Time remaining", value=str_time_remaining)
+        lottery_em.set_footer(text="Gino's Mercenaries - To receive the gold on a specific realm, an extra 5% of your win will be ask.")
+        return lottery_em

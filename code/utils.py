@@ -155,6 +155,20 @@ def get_faction(message):
     else:
         return  "horde"
 
+def define_lottery_pot(pot):
+    return [int(pot * 0.65), int(pot * 0.25), int(pot * 0.1)]
+
+
+def pretty_time_remaining(secs):
+    print(secs)
+    m, s = divmod(secs, 60)
+    h, m = divmod(m, 60)
+    d, h = divmod(h, 24)
+    d_string = "day" if d <= 1 else "days"
+    h_string = "hour" if h <= 1 else "hours"
+    m_string = "minute" if m <= 1 else "minutes"
+    return f"{int(d)} {d_string}, {int(h)} {h_string}, {int(m)} {m_string}"
+
 
 def get_name_realm(message):
     name_realm = ""

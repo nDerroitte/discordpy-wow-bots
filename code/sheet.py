@@ -523,6 +523,12 @@ class sheetReader:
         else:
             return False
 
+    def close_lottery_date(self):
+        detailed_logs = self.client.open(self.server_name).worksheet('Detailed Logs')
+        date_str = detailed_logs.cell(1, 2).value
+        end_cycle = datetime.strptime(date_str, "%Y/%m/%d %H:%M:%S")
+        return end_cycle - timedelta(days=3)
+
 
 
     def close(self):

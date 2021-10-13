@@ -447,6 +447,11 @@ class strikeClient(discord.Client):
                     id = message.content.split("!pricemount",1)[1]
                     pc = priceSheet()
                     return_dict = pc.price_sheet("mount", id)
+                    print(return_dict)
+                if message.content.startswith("!pricetcg"):
+                    id = message.content.split("!pricetcg",1)[1]
+                    pc = priceSheet()
+                    return_dict = pc.price_sheet("tcg", id)
                 if message.content.startswith("!pricehotdeals"):
                     id = message.content.split("!pricehotdeals",1)[1]
                     pc = priceSheet()
@@ -464,8 +469,11 @@ class strikeClient(discord.Client):
                             emo.append(discord.utils.get(self.__guild.emojis, name =f"{emo_str}"))
                     except:
                         pass
+                    print(return_dict)
                     embed_message = discord.Embed(title=return_dict[2].format(*emo), description=return_dict[3].format(*emo), color=0x9acd32)#7FFF00#9ACD32
                     for field in return_dict[4]:
+                        print("--")
+                        print(field)
                         embed_message.add_field(name=field["name"].format(*emo), value=field["value"].format(*emo), inline = True)
                         embed_message.add_field(name="\u200b", value="\u200b", inline = True)
                         if "price" in field:

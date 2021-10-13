@@ -251,7 +251,12 @@ class pvpClient(discord.Client):
                     embed_message.set_footer(text="Gino's Mercenaries")
                     await message.channel.send(embed=embed_message)
 
-
+        ############################## reload #############################
+        elif message.channel.name == "private-bot-commands" and message.content.startswith("!rename"):
+            reload_dict()
+            await message.add_reaction(self.allowed_emo)
+        
+        ################## form ###########################
         elif message.channel.name == "form" and message.author.id != self.__bot_id:
             to_handle = False
             if len(message.embeds)> 0:
