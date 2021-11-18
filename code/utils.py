@@ -113,7 +113,6 @@ def fillBoost(boost, str_message):
         if info[0] == "character to whisper":
             if info[1].replace(" ","") != "":
                 boost.who_to_w = info[1]
-                boost.dps_in[i] = booster_l[0]
         if info[0] == "key level":
             if info[1].replace(" ","") != "":
                 boost.key_level = info[1]
@@ -160,7 +159,6 @@ def define_lottery_pot(pot):
 
 
 def pretty_time_remaining(secs):
-    print(secs)
     m, s = divmod(secs, 60)
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
@@ -168,6 +166,11 @@ def pretty_time_remaining(secs):
     h_string = "hour" if h <= 1 else "hours"
     m_string = "minute" if m <= 1 else "minutes"
     return f"{int(d)} {d_string}, {int(h)} {h_string}, {int(m)} {m_string}"
+
+def sheet_name(booster):
+    booster_name= booster.display_name
+    user_name_serv= parseName(booster_name)
+    return user_name_serv[0] + "-" + user_name_serv[1]
 
 
 def get_name_realm(message):
@@ -221,6 +224,52 @@ def get_list_tag(message):
             except:
                 inv = ""
     return [list_tag, inv]
+
+def get_cut(boost, role):
+    player_index = 0
+    if boost.type in ["pvp", "legacy", "torghast"]:
+         player_index = boost.nb_boosters
+    if role == "adv":
+        if boost.no_adv_cut:
+            return 0
+        elif boost.inhouse:
+            return int(boost.gold*0.03)
+        else:
+            if boost.gold_collector == "" and boost.helper == "":
+                if boost.type == "legacy":
+                    return int(boost.gold*0.10)
+                elif boost.type == "pvp":
+                    return int(boost.gold*0.15)
+                else:
+                    return int(boost.gold*0.18)
+            else:
+                return int(boost.gold*0.15)
+    if role == "tank" or role == "heal":
+        if boost.no_adv_cut:
+            return  int(boost.gold*0.225)
+        elif boost.inhouse:
+            return int(boost.gold*0.2118)
+        else:
+            return int(boost.gold *0.18)
+    if role == "dps":
+        if boost.no_adv_cut:
+            cut = int(boost.gold*0.225)
+        elif boost.inhouse:
+            cut = int(boost.gold*0.2118)
+        else:
+            if boost.type  == "pvp":
+                cut =  int(boost.gold *0.1875)
+            if boost.type == "legacy":
+                cut = int(boost.gold*0.2)
+            else:
+                cut =  int(boost.gold *0.18)
+        if player_index == 1:
+            cut = cut * 4
+        elif player_index == 2:
+            cut = cut * 2
+        return cut
+    
+
 
 def main_connected_realm(realm):
     if realm == "hellscream":
@@ -355,12 +404,12 @@ def main_connected_realm(realm):
         return "onyxia"
     if realm in ["cho'gall", "chogall","sinstralis", "eldre'thalas", "eldrethalas"]:
         return "dalaran"
-    if realm in ["les clairvoyants","lesclairvoyants", "les sentinelles", "lessentinelles", "confrerieduthorium", "confrerie du thorium"]:
+    if realm in ["les clairvoyants","lesclairvoyants", "les sentinelles", "lessentinelles", "confrerieduthorium", "confrerie du thorium", "la croisade écarlate", "lacroisadeécarlate", "la croisade ecarlate", "lacroisadeecarlate"]:
         return "kirintor"
     if realm in ["naxxramas", "arathi", "temple noir", "templenoir"]:
         return "illidan"
     if realm in ["culte de la rive noire", "cultedelarivenoire", "conseil des ombres", "conseildesombres"]:
-        return "lacroisadeécarlate"
+        return "kirintor"
     if realm in ["garona", "ner'zhul", "nerzhul"]:
         return "sargeras"
     return realm

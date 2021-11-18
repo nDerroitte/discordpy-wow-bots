@@ -23,8 +23,10 @@ class sheetReader:
 
     def add_gold(self, name, server, gold):
         list_names_ally = self.sheet1.col_values(3)
+        list_names_horde = self.sheet1.col_values(11)
         list_servers_ally = self.sheet1.col_values(4)
-        list_gold_ally = self.sheet1.col_values(5)
+        list_servers_horde = self.sheet1.col_values(12)
+
         name = name.lower()
         server = server.lower()
         sign = "+"
@@ -94,6 +96,7 @@ class sheetReader:
         return "ok"
 
     def post_boost(self, boost):
+        ######################## Retreive google sheet info ########################
         sheet2 = self.client.open(self.server_name).worksheet('logs')
         list_logs = sheet2.col_values(1)
         index = len(list_logs)+1
@@ -103,43 +106,49 @@ class sheetReader:
         list_names_horde = self.sheet1.col_values(11)
         list_servers_ally = self.sheet1.col_values(4)
         list_servers_horde = self.sheet1.col_values(12)
-
+        ######################### Player index for PvP / Torghast ########################
         player_index = 0
         if boost.type == "pvp" or boost.type == 'torghast':
             player_index = boost.nb_boosters
-        #TANK - HEAL
+        ######################### Boosters names ########################
+        ## TANK - HEAL
         if boost.type == "mm" or boost.type == "tazavesh" or boost.type == "leveling":
-            booster_name_tank = boost.tank_in.display_name
-            user_name_serv_tank = parseName(booster_name_tank)
-            name_tank = user_name_serv_tank[0].lower()
-            serv_tank = user_name_serv_tank[1].lower()
-            booster_name_tank = user_name_serv_tank[0] + "-" + user_name_serv_tank[1]
+            booster_name_tank = sheet_name(boost.tank_in)
             #HEAL
-            booster_name_heal = boost.heal_in.display_name
-            user_name_serv_heal = parseName(booster_name_heal)
-            name_heal = user_name_serv_heal[0].lower()
-            serv_heal = user_name_serv_heal[1].lower()
-            booster_name_heal = user_name_serv_heal[0] + "-" + user_name_serv_heal[1]
-        #DPS1
-        booster_name_dps1 = boost.dps_in[0].display_name
-        user_name_serv_dps1 = parseName(booster_name_dps1)
-        name_dps1 = user_name_serv_dps1[0].lower()
-        serv_dps1 = user_name_serv_dps1[1].lower()
-        booster_name_dps1 = user_name_serv_dps1[0] + "-" + user_name_serv_dps1[1]
+            booster_name_heal = sheet_name(boost.heal_in)
+        ## DPS1
+        booster_name_dps1 = sheet_name(boost.dps_in[0]) 
+        ## DPS2
         if boost.type == "mm" or boost.type == "tazavesh" or player_index > 1 or boost.type == "island":
-            #DPS2
-            booster_name_dps2 = boost.dps_in[1].display_name
-            user_name_serv_dps2 = parseName(booster_name_dps2)
-            name_dps2 = user_name_serv_dps2[0].lower()
-            serv_dps2 = user_name_serv_dps2[1].lower()
-            booster_name_dps2 = user_name_serv_dps2[0] + "-" + user_name_serv_dps2[1]
-        #ADV
-        adv_name = boost.advertiser.display_name
-        user_name_serv_adv = parseName(adv_name)
-        name_adv = user_name_serv_adv[0].lower()
-        serv_adv = user_name_serv_adv[1].lower()
-        adv_name = user_name_serv_adv[0] + "-" + user_name_serv_adv[1]
-
+            booster_name_dps2 = sheet_name(boost.dps_in[1]) 
+        ## ADV
+        adv_name =  sheet_name(boost.advertiser) 
+        user_name_serv = parseName(boost.advertiser.display_name)
+        name_adv = user_name_serv[0]
+        serv_adv = user_name_serv[1]
+        ######################## CUT ########################
+        if boost.no_adv_cut:
+            sheet2.update_cell(index,16, "NoAdvCut")
+        elif  boost.inhouse:
+            sheet2.update_cell(index,16, "InHouse")
+        elif boost.type == "mm":
+            if boost.isValor:
+                sheet2.update_cell(index,16, "Valor")
+            elif boost.isLeveling:
+                sheet2.update_cell(index,16, "Leveling")
+            else: 
+                sheet2.update_cell(index, 16,"M+")
+        elif boost.type == "legacy":
+            sheet2.update_cell(index,16,"Legacy")
+        elif boost.type == "torghast":
+            sheet2.update_cell(index,16,"Torghast")
+        elif boost.type == "pvp":
+            sheet2.update_cell(index, 16,"PvP")
+        elif boost.type == "tazavesh":
+            sheet2.update_cell(index, 16,"Tazavesh")
+        else: 
+            sheet2.update_cell(index, 16,"M+")
+        ######################## Armor Stack / Key  info ########################
         if boost.type == "mm":
             if boost.isValor:
                 sheet2.update_cell(index,2, "Valor")
@@ -154,7 +163,7 @@ class sheetReader:
             if boost.armor_stack =="no" or boost.armor_stack == "" or boost.armor_stack == "/" or boost.armor_stack == "noarmorstack" or boost.armor_stack == "noarmorstacks" or boost.armor_stack == "nostack":
                 sheet2.update_cell(index,4, "No")
             else:
-                sheet2.update_cell(index,4, "Yes")
+                sheet2.update_cell(index,4, "Yes")      
         elif boost.type == "legacy":
             sheet2.update_cell(index,2,"Legacy")
             sheet2.update_cell(index,3, "No")
@@ -164,11 +173,11 @@ class sheetReader:
             sheet2.update_cell(index,3, "No")
             sheet2.update_cell(index,4, "No")
         elif boost.type == "pvp":
-            sheet2.update_cell(index,2,"PVP")
+            sheet2.update_cell(index,2,"PvP")
             sheet2.update_cell(index,3, "No")
             sheet2.update_cell(index,4, "No")
-        elif boost.type == "island":
-            sheet2.update_cell(index,2,"Island")
+        elif boost.type == "tazavesh":
+            sheet2.update_cell(index,2,"Tazavesh")
             sheet2.update_cell(index,3, "No")
             sheet2.update_cell(index,4, "No")
         else:
@@ -176,239 +185,49 @@ class sheetReader:
             sheet2.update_cell(index,3, "No")
             if boost.armor_stack =="no" or boost.armor_stack == "" or boost.armor_stack == "/" or boost.armor_stack == "noarmorstack" or boost.armor_stack == "noarmorstacks" or boost.armor_stack == "nostack":
                 sheet2.update_cell(index,4, "No")
-
-        if boost.no_adv_cut == True:
-            true_gold = boost.gold
-            if boost.inhouse == True:
-                sheet2.update_cell(index,14, "Yes")
-                true_gold = int(boost.gold * 0.85)
-            sheet2.update_cell(index, 5, true_gold)
-            gold_18_percent = int(true_gold * 0.18)
-            gold_remaining_percent = int(true_gold * 0.04)
-            if  boost.type == "legacy" or player_index == 1:
-                max_count = 2
-                gold_remaining_percent *= 4
-            elif boost.type == "island" or player_index == 2:
-                max_count = 3
-                gold_remaining_percent *= 2
-            else:
-                max_count = 5
-
-            count = 0
-            for i in range(0,len(list_names_ally)):
-                if count == max_count:
-                    break
-                if boost.type == "mm" or boost.type == "tazavesh":
-                    if list_names_ally[i].lower() == name_tank and list_servers_ally[i].lower() == serv_tank:
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                        count = count + 1
-                    if list_names_ally[i].lower() == name_heal and list_servers_ally[i].lower() == serv_heal:
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                        count = count + 1
-                if boost.type == "mm" or boost.type == "tazavesh" or player_index == 2 or boost.type == "island":
-                    if list_names_ally[i].lower() == name_dps2 and list_servers_ally[i].lower() == serv_dps2:
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                        count = count + 1
-                if list_names_ally[i].lower() == name_dps1 and list_servers_ally[i].lower() == serv_dps1:
-                    formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                    formula += "+" + str(gold_remaining_percent)
-                    self.sheet1.update_cell(i+1, 5, formula)
-                    count = count + 1
-                if list_names_ally[i].lower() == name_adv and list_servers_ally[i].lower() == serv_adv:
-                    formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                    formula += "-" + str(gold_18_percent)
-                    self.sheet1.update_cell(i+1, 5, formula)
-                    count = count + 1
-            for i in range(0,len(list_names_horde)):
-                if count == max_count:
-                    break
-                if boost.type == "mm" or boost.type == "tazavesh":
-                    if list_names_horde[i].lower() == name_tank and list_names_horde[i].lower() == serv_tank:
-                        formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 13, formula)
-                        count = count + 1
-                    if list_names_horde[i].lower() == name_heal and list_names_horde[i].lower() == serv_heal:
-                        formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 13, formula)
-                        count = count + 1
-                if boost.type == "mm" or boost.type == "tazavesh" or player_index == 2 or boost.type == "island":
-                    if list_names_horde[i].lower() == name_dps2 and list_names_horde[i].lower() == serv_dps2:
-                        formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 13, formula)
-                        count = count + 1
-                if list_names_horde[i].lower() == name_dps1 and list_names_horde[i].lower() == serv_dps1:
-                    formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                    formula += "+" + str(gold_remaining_percent)
-                    self.sheet1.update_cell(i+1, 13, formula)
-                    count = count + 1
-                if list_names_horde[i].lower() == name_adv and list_names_horde[i].lower() == serv_adv:
-                    formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                    formula += "-" + str(gold_18_percent)
-                    self.sheet1.update_cell(i+1, 13, formula)
-                    count = count + 1
-
-
-        elif boost.inhouse == True:
+        ######################## In house flag ########################
+        if boost.inhouse == True:
             sheet2.update_cell(index,14, "Yes")
-            gold_inHouse = int(boost.gold * 0.85)
-            gold_15_percent = int(gold_inHouse * 0.15)
-            gold_remaining_percent = int(gold_inHouse * 0.0375)
-            sheet2.update_cell(index, 5, gold_inHouse)
-            if player_index == 1:
-                max_count = 2
-                gold_remaining_percent *= 4
-            elif boost.type == "island" or player_index == 2:
-                max_count = 3
-                gold_remaining_percent *= 2
-            else:
-                max_count = 5
-
-            count = 0
-            for i in range(0,len(list_names_ally)):
-                if count == max_count:
-                    break
-                if boost.type == "mm" or boost.type == "tazavesh":
-                    if list_names_ally[i].lower() == name_tank and list_servers_ally[i].lower() == serv_tank:
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                        count = count + 1
-                    if list_names_ally[i].lower() == name_heal and list_servers_ally[i].lower() == serv_heal:
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                        count = count + 1
-                if boost.type == "mm" or boost.type == "tazavesh" or player_index == 2 or boost.type == "island":
-                    if list_names_ally[i].lower() == name_dps2 and list_servers_ally[i].lower() == serv_dps2:
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                        count = count + 1
-                if list_names_ally[i].lower() == name_dps1 and list_servers_ally[i].lower() == serv_dps1:
-                    formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                    formula += "+" + str(gold_remaining_percent)
-                    self.sheet1.update_cell(i+1, 5, formula)
-                    count = count + 1
-                if list_names_ally[i].lower() == name_adv and list_servers_ally[i].lower() == serv_adv:
-                    formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                    formula += "-" + str(gold_15_percent)
-                    self.sheet1.update_cell(i+1, 5, formula)
-                    count = count + 1
-            for i in range(0,len(list_names_horde)):
-                if count == max_count:
-                    break
-                if boost.type == "mm" or boost.type == "tazavesh":
-                    if list_names_horde[i].lower() == name_tank and list_servers_horde[i].lower() == serv_tank:
-                        formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 13, formula)
-                        count = count + 1
-                    if list_names_horde[i].lower() == name_heal and list_servers_horde[i].lower() == serv_heal:
-                        formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 13, formula)
-                        count = count + 1
-                if boost.type == "mm" or boost.type == "tazavesh" or player_index == 2 or boost.type == "island":
-                    if list_names_horde[i].lower() == name_dps2 and list_servers_horde[i].lower() == serv_dps2:
-                        formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(gold_remaining_percent)
-                        self.sheet1.update_cell(i+1, 13, formula)
-                        count = count + 1
-                if list_names_horde[i].lower() == name_dps1 and list_servers_horde[i].lower() == serv_dps1:
-                    formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                    formula += "+" + str(gold_remaining_percent)
-                    self.sheet1.update_cell(i+1, 13, formula)
-                    count = count + 1
-                if list_names_horde[i].lower() == name_adv and list_servers_horde[i].lower() == serv_adv:
-                    formula = self.sheet1.cell(i+1, 13, value_render_option='FORMULA').value
-                    formula += "-" + str(gold_15_percent)
-                    self.sheet1.update_cell(i+1, 13, formula)
-                    count = count + 1
-            #parcourir acec count horde et alliance
-            #si count = 5 break
         else:
-            if boost.gold_collector != "" or boost.helper != "" or (boost.type == "pvp" and player_index == 1):
-                if player_index == 1:
-                    gc_name = boost.dps_in[0].display_name
-                else:
-                    try:
-                        gc_name = boost.gold_collector.display_name
-                    except:
-                        gc_name = boost.helper.display_name
-                gc_name_serv_adv = parseName(gc_name)
-                name_gc = gc_name_serv_adv[0].lower()
-                serv_gc = gc_name_serv_adv[1].lower()
-                gc_name = gc_name_serv_adv[0] + "-" + gc_name_serv_adv[1]
-                count = 2
-                for i in range(0,len(list_names_ally)):
-                    if count == 0:
-                        break
-                    if list_names_ally[i].lower() == name_gc and list_servers_ally[i].lower() == serv_gc:
-                        count -= 1
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                    if list_names_ally[i].lower() == name_adv and list_servers_ally[i].lower() == serv_adv:
-                        count -= 1
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "-" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                for j in range(0,len(list_names_horde)):
-                    if count == 0:
-                        break
-                    if list_names_horde[j].lower() == name_gc and list_servers_horde[j].lower() == serv_gc:
-                        count -= 1
-                        formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(j+1, 13, formula)
-                    if list_names_horde[j].lower() == name_adv and list_servers_horde[j].lower() == serv_adv:
-                        count -= 1
-                        formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
-                        formula += "-" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(j+1, 13, formula)
-            elif boost.type == "legacy":
-                gc_name_serv_adv = parseName(boost.dps_in[0].display_name)
-                name_gc = gc_name_serv_adv[0].lower()
-                serv_gc = gc_name_serv_adv[1].lower()
-                gc_name = gc_name_serv_adv[0] + "-" + gc_name_serv_adv[1]
-                count = 2
-                for i in range(0,len(list_names_ally)):
-                    if count == 0:
-                        break
-                    if list_names_ally[i].lower() == name_gc and list_servers_ally[i].lower() == serv_gc:
-                        count -= 1
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "+" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                    if list_names_ally[i].lower() == name_adv and list_servers_ally[i].lower() == serv_adv:
-                        count -= 1
-                        formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
-                        formula += "-" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(i+1, 5, formula)
-                for j in range(0,len(list_names_horde)):
-                    if count == 0:
-                        break
-                    if list_names_horde[j].lower() == name_gc and list_servers_horde[j].lower() == serv_gc:
-                        count -= 1
-                        formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
-                        formula += "+" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(j+1, 13, formula)
-                    if list_names_horde[j].lower() == name_adv and list_servers_horde[j].lower() == serv_adv:
-                        count -= 1
-                        formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
-                        formula += "-" + str(boost.gold * 0.03)
-                        self.sheet1.update_cell(j+1, 13, formula)
-            sheet2.update_cell(index, 5, boost.gold)
             sheet2.update_cell(index,14, "No")
+        ######################## Helper / GC ########################
+        if boost.gold_collector != "" or boost.helper != "":
+            try:
+                gc_name = boost.gold_collector.display_name
+            except:
+                gc_name = boost.helper.display_name
+            gc_name_serv_adv = parseName(gc_name)
+            name_gc = gc_name_serv_adv[0].lower()
+            serv_gc = gc_name_serv_adv[1].lower()
+            count = 2
+            for i in range(0,len(list_names_ally)):
+                if count == 0:
+                    break
+                if list_names_ally[i].lower() == name_gc and list_servers_ally[i].lower() == serv_gc:
+                    count -= 1
+                    formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
+                    formula += "+" + str(boost.gold * 0.03)
+                    self.sheet1.update_cell(i+1, 5, formula)
+                if list_names_ally[i].lower() == name_adv and list_servers_ally[i].lower() == serv_adv:
+                    count -= 1
+                    formula = self.sheet1.cell(i+1, 5, value_render_option='FORMULA').value
+                    formula += "-" + str(boost.gold * 0.03)
+                    self.sheet1.update_cell(i+1, 5, formula)
+            for j in range(0,len(list_names_horde)):
+                if count == 0:
+                    break
+                if list_names_horde[j].lower() == name_gc and list_servers_horde[j].lower() == serv_gc:
+                    count -= 1
+                    formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
+                    formula += "+" + str(boost.gold * 0.03)
+                    self.sheet1.update_cell(j+1, 13, formula)
+                if list_names_horde[j].lower() == name_adv and list_servers_horde[j].lower() == serv_adv:
+                    count -= 1
+                    formula = self.sheet1.cell(j+1, 13, value_render_option='FORMULA').value
+                    formula += "-" + str(boost.gold * 0.03)
+                    self.sheet1.update_cell(j+1, 13, formula)
+        ######################## Boost Info ########################
+        sheet2.update_cell(index, 5, boost.gold)
         sheet2.update_cell(index, 6, boost.realm)
         sheet2.update_cell(index, 7, boost.gold_faction.capitalize())
         sheet2.update_cell(index, 8, adv_name)
@@ -427,7 +246,7 @@ class sheetReader:
             sheet2.update_cell(index, 10, booster_name_dps1)
             sheet2.update_cell(index, 11, booster_name_dps1)
             sheet2.update_cell(index, 12, booster_name_dps1)
-        elif boost.type == "island" or player_index == 2:
+        elif player_index == 2:
             sheet2.update_cell(index, 9, booster_name_dps1)
             sheet2.update_cell(index, 10, booster_name_dps1)
             sheet2.update_cell(index, 11, booster_name_dps2)

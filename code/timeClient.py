@@ -90,13 +90,55 @@ class timeClient(discord.Client):
 
 
         # reset all star
-        elif message.channel.name == "private-bot-commands" and message.content == "!reset91":
+        elif message.channel.name == "private-bot-commands" and message.content == "!reset912":
             # STEP DURING : Upgrade prestige that deserves it
+            print("Step 1 : upgrading boosters that are prestiges")
+            # boosters = []
+            # all_members = message.guild.members
+            # for i in range(len(all_members)):
+            #     roles_str = [o.name.lower() for o in all_members[i].roles]
+            #     if "m+ prestige" in roles_str and "m+ allstars" not in roles_str:
+            #         boosters.append(all_members[i])
+            # len_to_update_members = len(boosters)
+            # count = 0
+            # for i in range(len_to_update_members):
+            #     if i % 100 == 0 :
+            #         print(f'{i} / {len_to_update_members}')
+            #     booster = boosters.pop()
+            #     roles_str = [y.name.lower() for y in booster.roles]
+            #     user_name_serv = parseName(booster.display_name)
+            #     get_url = "https://raider.io/api/v1/characters/profile?region=eu&realm={}&name={}&fields=mythic_plus_scores_by_season%3Acurrent".format(user_name_serv[1].lower(),user_name_serv[0].lower().capitalize())
+            #     r = requests.get(get_url)
+            #     if r.status_code == 200:
+            #         data = r.json()
+            #         rio_heal = data["mythic_plus_scores_by_season"][0]['scores']['healer']
+            #         rio_tank = data["mythic_plus_scores_by_season"][0]['scores']['tank']
+            #         rio_dps = data["mythic_plus_scores_by_season"][0]['scores']['dps']
+            #         if rio_tank > 2300 or rio_heal > 2300 or rio_dps > 2300:
+            #             count += 1 
+            #             print(user_name_serv)
+            #             if "m+ allstars" not in roles_str:
+            #                 m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
+            #                 await booster.add_roles(m_all_star)
+            #             if rio_heal > 2300 and "healer all star" not in roles_str:
+            #                 healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
+            #                 await booster.add_roles(healer_all_star)
+            #             if rio_tank > 2300 and "tank all star" not in roles_str:
+            #                 tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
+            #                 await booster.add_roles(tank_all_star)
+            #             if rio_dps > 2300 and "dps all star" not in roles_str:
+            #                 dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
+            #                 await booster.add_roles(dps_all_star)
+            
+            # await message.add_reaction(self.allowed_emo)
+            # print(count)
+            print("Step 2 : Removing All Stars from under rio guys ")
+            count = 0
             boosters = []
             all_members = message.guild.members
             for i in range(len(all_members)):
                 roles_str = [o.name.lower() for o in all_members[i].roles]
-                if "m+ prestige" in roles_str and "m+ allstars" not in roles_str:
+                if "m+ allstars" in roles_str:
                     boosters.append(all_members[i])
             len_to_update_members = len(boosters)
             count = 0
@@ -113,22 +155,20 @@ class timeClient(discord.Client):
                     rio_heal = data["mythic_plus_scores_by_season"][0]['scores']['healer']
                     rio_tank = data["mythic_plus_scores_by_season"][0]['scores']['tank']
                     rio_dps = data["mythic_plus_scores_by_season"][0]['scores']['dps']
-                    if rio_tank > 2150 or rio_heal > 2150 or rio_dps > 2150:
+                    if rio_tank < 2300 and rio_heal < 2300 and rio_dps < 2300:
                         count += 1 
                         print(user_name_serv)
-                        if "m+ allstars" not in roles_str:
-                            m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
-                            await booster.add_roles(m_all_star)
-                        if rio_heal > 2150 and "healer all star" not in roles_str:
-                            healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
-                            await booster.add_roles(healer_all_star)
-                        if rio_tank > 2150 and "tank all star" not in roles_str:
-                            tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
-                            await booster.add_roles(tank_all_star)
-                        if rio_dps > 2150 and "dps all star" not in roles_str:
-                            dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
-                            await booster.add_roles(dps_all_star)
-            
+                        m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
+                        await booster.remove_roles(m_all_star)
+                    if rio_heal < 2300 and "healer all star" in roles_str:
+                        healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
+                        await booster.remove_roles(healer_all_star)
+                    if rio_tank < 2300 and "tank all star" in roles_str:
+                        tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
+                        await booster.remove_roles(tank_all_star)
+                    if rio_dps < 2300 and "dps all star" in roles_str:
+                        dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
+                        await booster.remove_roles(dps_all_star)
             print(count)
             await message.add_reaction(self.allowed_emo)
             # STEP 1 : Remove prestige if not all started
@@ -263,7 +303,8 @@ class timeClient(discord.Client):
             delta_t = self.next_run - datetime.now()
             sec2wait = delta_t.seconds
             print(sec2wait)
-            await asyncio.sleep(sec2wait)
+            if sec2wait >= 0:
+                await asyncio.sleep(sec2wait)
             print("done")
         try:
             chan = discord.utils.get(self.__guild.channels, name='strikes', type=discord.ChannelType.text)

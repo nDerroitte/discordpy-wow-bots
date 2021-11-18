@@ -177,7 +177,7 @@ class MainClient(discord.Client):
                         other_role_chan = discord.utils.get(self.__guild.channels, id=720306861013729351, type=discord.ChannelType.text)
                         mm_roles_channel = discord.utils.get(self.__guild.channels, id=689148468777713708, type=discord.ChannelType.text)
                         embed_message = discord.Embed(title="Roles", color=0x61b3f2)#7FFF00
-                        embed_message.add_field(name="M+ roles", value="You currently need 1950 to be a prestige booster (up to +13) and 2150 to be an allstar booster (14 and higher).", inline=False)
+                        embed_message.add_field(name="M+ roles", value="You currently need 1950 to be a prestige booster (up to +13) and 2300 to be an allstar booster (14 and higher).", inline=False)
                         embed_message.add_field(name="\u200b",value="**If you want to update your roles** after leveling a new alt or gaining some r.io points, you can use !update name-realm in {}. (where name and realm must be replaced with the ones of your character)\nThis command also works to get the roles of your alts by using the name and realm of your alts!\n".format(mm_roles_channel.mention), inline=False)
                         embed_message.add_field(name="Other roles and change name", value="In order to change name or request other roles (For example: torghast runner), please introduce a manual request in {}. ".format(other_role_chan.mention))
                         embed_message.add_field(name="Removes roles", value="In order to remove roles, please introduce a manual request in {}. ".format(other_role_chan.mention))
@@ -375,7 +375,7 @@ class MainClient(discord.Client):
                             roles = adv.roles
                             role_str = [y.name.lower() for y in roles]
                             new_adv = True
-                            if "advertiser alliance" in role_str or "advertiser horde" in role_str or "trusted advertiser" in role_str or "gold collector" in role_str:
+                            if "advertiser" in role_str or "trusted advertiser" in role_str or "gold collector" in role_str:
                                 new_adv = False
                             if new_adv:
                                 # DM the new adv
@@ -388,10 +388,7 @@ class MainClient(discord.Client):
                                 embed_message = discord.Embed(title="Gold Collection: {} - {}".format(boost.realm.capitalize(), boost.faction.capitalize()), color=0x61b3f2)#7FFF00
                                 embed_message.add_field(name="Advertiser", value = "{} - {}".format(boost.advertiser.mention, boost.advertiser.display_name))
                                 embed_message.add_field(name="Character to whisp", value = boost.who_to_w, inline=False)
-                                if boost.inhouse:
-                                    embed_message.add_field(name="Gold", value = "{}k".format(boost.gold * 0.85/1000), inline=False)
-                                else:
-                                    embed_message.add_field(name="Gold", value = "{}k".format(boost.gold/1000), inline=False)
+                                embed_message.add_field(name="Gold", value = "{}k".format(boost.gold/1000), inline=False)
                                 embed_message.set_footer(text="Gino's Mercenaries")
                                 boost.message_collecting = await gold_collecting_chan.send(embed = embed_message)
                                 await boost.message_collecting.add_reaction(self.allowed_emo)
@@ -862,10 +859,7 @@ class MainClient(discord.Client):
                                     gc_em.add_field(name="Who to mail", value = "MercsAlly-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
                                 else:
                                     gc_em.add_field(name="Who to mail", value = "MercsHorde-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
-                                if boost.inhouse:
-                                    gc_em.add_field(name="Gold to send", value = "{:,}".format(boost.gold * 0.85))
-                                else:
-                                    gc_em.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
+                                gc_em.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
                                 gc_em.set_footer(text="Gino's Mercenaries")
                                 await user.create_dm()
                                 await user.dm_channel.send(embed=gc_em)
@@ -968,7 +962,7 @@ class MainClient(discord.Client):
                                         self.__boost_being_done.append(boost)
                                         em_adv = discord.Embed(title="Boost ready!", color=0x32cd32)
                                         if boost.type == "legacy":
-                                            em_adv.add_field(name="\u200b", value = "Your boost is ready to go!\nPlease react with {} (if the boost was well done) or {} to close the boost.".format(boost.who_to_w, self.allowed_emo, self.denied_emo), inline=False)
+                                            em_adv.add_field(name="\u200b", value = "Your boost is ready to go!\nPlease react with {} (if the boost was well done) or {} to close the boost.".format(self.allowed_emo, self.denied_emo), inline=False)
                                         else:
                                             em_adv.add_field(name="\u200b", value = "Your boost is ready to go! The boosters will whisper ```{}```\nPlease react with {} (if the boost was well done) or {} to close the boost.".format(boost.who_to_w, self.allowed_emo, self.denied_emo), inline=False)
                                         em_adv.set_footer(text="Gino's Mercenaries")
@@ -1026,12 +1020,14 @@ class MainClient(discord.Client):
                                     else:
                                         await message.remove_reaction(emoji, user)
                                 if emoji == self.allowed_emo:
+                                    ######################## Boost Validatiopn ########################
                                     if boost.advertiser.id == user.id or user.id == self.__day_id or (boost.helper != "" and boost.helper.id == user.id):
                                         await boost.message_annoucement.clear_reactions()
                                         self.__boost_being_done.pop(w)
                                         # POST BOOST
                                         sr = sheetReader()
                                         ally_bool = True
+                                        ######################## Verify boosters name ########################
                                         if boost.faction == "horde":
                                             ally_bool = False
                                         if boost.advertiser != "":
@@ -1062,6 +1058,7 @@ class MainClient(discord.Client):
                                             t_name = boost.dps_in[3].display_name
                                             if not check_name(t_name):
                                                 boost.auto_post = False
+                                        ######################## Auto POST + ADV MSG ########################
                                         if boost.auto_post:
                                             player_index = 0
                                             if boost.type == "pvp" or boost.type == "torghast":
@@ -1082,32 +1079,15 @@ class MainClient(discord.Client):
                                                     embed_message_adv.add_field(name="Who to mail", value = "MercsAlly-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
                                                 else:
                                                     embed_message_adv.add_field(name="Who to mail", value = "MercsHorde-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
-                                                if boost.inhouse:
-                                                    embed_message_adv.add_field(name="Gold to send", value = "{:,}".format(boost.gold * 0.85))
-                                                else:
-                                                    embed_message_adv.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
+                                                embed_message_adv.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
                                             if gold == "Nbalance":
                                                 ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                            else:
-                                                embed_message_adv.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
-                                                if boost.no_adv_cut:
-                                                    embed_message_adv.add_field(name="Your cut", value = "Your cut was 0. :moneybag:".format(int(boost.gold*0.85*0.03)), inline=True)
-                                                elif boost.inhouse:
-                                                    embed_message_adv.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.03)), inline=True)
-                                                else:
-                                                    if boost.gold_collector == "":
-                                                        if boost.helper == "":
-                                                            if boost.type != "leveling" and boost.type != "pvp" and boost.type != "legacy":
-                                                                embed_message_adv.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18)), inline=True)
-                                                            elif boost.type == "legacy":
-                                                                pass
-                                                            else:
-                                                                embed_message_adv.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.15)), inline=True)
-                                                        else:
-                                                            embed_message_adv.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.15)), inline=True)
-                                                    else:
-                                                        embed_message_adv.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.15)), inline=True)
+                                                gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                                            embed_message_adv.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
+                                            cut = get_cut(boost, "adv")
+                                            embed_message_adv.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
                                             embed_message_adv.set_footer(text="Gino's Mercenaries")
+                                        ######################## No Auto Post  ########################
                                         else:
                                             em = boost.end_post()
                                             await boost.unpost_chan.send(embed=em)
@@ -1116,8 +1096,7 @@ class MainClient(discord.Client):
                                             embed_message_adv.set_footer(text="Gino's Mercenaries")
                                         await boost.advertiser.create_dm()
                                         await boost.advertiser.dm_channel.send(embed = embed_message_adv)
-                                        check_channel = discord.utils.get(self.__guild.channels, name='check-balance', type=discord.ChannelType.text)
-                                        balance_channel = discord.utils.get(self.__guild.channels, name='balance-sheets', type=discord.ChannelType.text)
+                                        ######################## TANK MESSAGE ########################
                                         if boost.tank_in != "":
                                             if boost.auto_post:
                                                 name = boost.tank_in.display_name
@@ -1127,26 +1106,18 @@ class MainClient(discord.Client):
                                                 embed_message.add_field(name="Thank you!", value = "The boost has been validated by {} and added to the balance!\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
                                                 if gold == "Nbalance":
                                                     ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                                else:
-                                                    embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
-                                                    if boost.inhouse:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.2175)), inline=True)
-                                                    else:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18)), inline=True)
+                                                    gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                                                embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
+                                                cut = get_cut(boost, "tank")
+                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             else:
                                                 embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
                                                 embed_message.add_field(name="Thank you!", value = "The boost has been validated by {}. It will be added to the balance shortly.\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
                                                 embed_message.set_footer(text="Gino's Mercenaries")
-
                                             await boost.tank_in.create_dm()
                                             await boost.tank_in.dm_channel.send(embed = embed_message)
+                                        ######################## HEAL MESSAGE ########################
                                         if boost.heal_in != "":
                                             if boost.auto_post:
                                                 name = boost.heal_in.display_name
@@ -1156,18 +1127,10 @@ class MainClient(discord.Client):
                                                 embed_message.add_field(name="Thank you!", value = "The boost has been validated by {} and added to the balance!\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
                                                 if gold == "Nbalance":
                                                     ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                                else:
-                                                    embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
-                                                    if boost.inhouse:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.2175)), inline=True)
-                                                    else:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18)), inline=True)
+                                                    gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                                                embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
+                                                cut = get_cut(boost, "heal")
+                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             else:
                                                 embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
@@ -1175,6 +1138,7 @@ class MainClient(discord.Client):
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             await boost.heal_in.create_dm()
                                             await boost.heal_in.dm_channel.send(embed = embed_message)
+                                        ######################## DPS I MESSAGE ########################
                                         if boost.dps_in[0] != "":
                                             if boost.auto_post:
                                                 name = boost.dps_in[0].display_name
@@ -1184,46 +1148,10 @@ class MainClient(discord.Client):
                                                 embed_message.add_field(name="Thank you!", value = "The boost has been validated by {} and added to the balance!\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
                                                 if gold == "Nbalance":
                                                     ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                                else:
-                                                    embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
-                                                    if boost.inhouse:
-                                                        if player_index == 1:
-                                                            if boost.no_adv_cut:
-                                                                cut = int(boost.gold*0.225*0.85*4)
-                                                            else:
-                                                                cut = int(boost.gold*0.2175*0.85 *4)
-                                                        elif player_index == 2 or boost.type == "island":
-                                                            if boost.no_adv_cut:
-                                                                cut = int(boost.gold*0.225*0.85*2)
-                                                            else:
-                                                                cut = int(boost.gold*0.2175*0.85 *2)
-                                                        else:
-                                                            if boost.no_adv_cut:
-                                                                cut = int(boost.gold*0.225*0.85)
-                                                            else:
-                                                                cut = int(boost.gold*0.2175*0.85)
-                                                        embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
-                                                    else:
-                                                        if boost.type in ["torghast"] or player_index == 1:
-                                                            if boost.no_adv_cut:
-                                                                cut = int(boost.gold*0.22*4)
-                                                            else:
-                                                                if boost.type == "leveling" or boost.type == "pvp":
-                                                                    cut = int(boost.gold*0.75)
-                                                                else:
-                                                                    cut = int(boost.gold*0.18 *4)
-                                                        elif player_index == 2 or boost.type == "island":
-                                                            if boost.no_adv_cut:
-                                                                cut = int(boost.gold*0.22*2)
-                                                            else:
-                                                                cut = int(boost.gold*0.18 *2)
-                                                        else:
-                                                            if boost.no_adv_cut:
-                                                                cut = int(boost.gold*0.22)
-                                                            else:
-                                                                cut = int(boost.gold*0.18)
-                                                        if boost.type != "legacy":
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
+                                                    gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                                                embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
+                                                cut = get_cut(boost, "dps")
+                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             else:
                                                 embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
@@ -1231,6 +1159,7 @@ class MainClient(discord.Client):
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             await boost.dps_in[0].create_dm()
                                             await boost.dps_in[0].dm_channel.send(embed = embed_message)
+                                        ######################## DPS II MESSAGE ########################
                                         if boost.dps_in[1] != "":
                                             if boost.auto_post:
                                                 name = boost.dps_in[1].display_name
@@ -1240,30 +1169,10 @@ class MainClient(discord.Client):
                                                 embed_message.add_field(name="Thank you!", value = "The boost has been validated by {} and added to the balance!\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
                                                 if gold == "Nbalance":
                                                     ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                                else:
-                                                    embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
-                                                    if player_index == 2 or boost.type == "island":
-                                                        if boost.inhouse:
-                                                            if boost.no_adv_cut:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.22*2)), inline=True)
-                                                            else:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.2175*2)), inline=True)
-                                                        else:
-                                                            if boost.no_adv_cut:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.22*2)), inline=True)
-                                                            else:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18*2)), inline=True)
-                                                    else:
-                                                        if boost.inhouse:
-                                                            if boost.no_adv_cut:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.22)), inline=True)
-                                                            else:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.2175)), inline=True)
-                                                        else:
-                                                            if boost.no_adv_cut:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.22)), inline=True)
-                                                            else:
-                                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18)), inline=True)
+                                                    gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                                                embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
+                                                cut = get_cut(boost, "dps")
+                                                embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(cut), inline=True)
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             else:
                                                 embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
@@ -1271,61 +1180,6 @@ class MainClient(discord.Client):
                                                 embed_message.set_footer(text="Gino's Mercenaries")
                                             await boost.dps_in[1].create_dm()
                                             await boost.dps_in[1].dm_channel.send(embed = embed_message)
-                                        if boost.dps_in[2] != "":
-                                            if boost.auto_post:
-                                                name = boost.dps_in[2].display_name
-                                                user_name_serv = parseName(name)
-                                                gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
-                                                embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
-                                                embed_message.add_field(name="Thank you!", value = "The boost has been validated by {} and added to the balance!\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
-                                                if gold == "Nbalance":
-                                                    ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                                else:
-                                                    if boost.inhouse:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.2175)), inline=True)
-                                                    else:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18)), inline=True)
-                                                embed_message.set_footer(text="Gino's Mercenaries")
-                                            else:
-                                                embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
-                                                embed_message.add_field(name="Thank you!", value = "The boost has been validated by {}. It will be added to the balance shortly.\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
-                                                embed_message.set_footer(text="Gino's Mercenaries")
-                                            await boost.dps_in[2].create_dm()
-                                            await boost.dps_in[2].dm_channel.send(embed = embed_message)
-                                        if boost.dps_in[3] != "":
-                                            if boost.auto_post:
-                                                name = boost.dps_in[3].display_name
-                                                user_name_serv = parseName(name)
-                                                gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
-                                                embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
-                                                embed_message.add_field(name="Thank you!", value = "The boost has been validated by {} and added to the balance!\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
-                                                if gold == "Nbalance":
-                                                    ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
-                                                else:
-                                                    embed_message.add_field(name="Your balance", value = "You now have {} gold!".format(gold), inline=True)
-                                                    if boost.inhouse:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.85*0.2175)), inline=True)
-                                                    else:
-                                                        if boost.no_adv_cut:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.22)), inline=True)
-                                                        else:
-                                                            embed_message.add_field(name="Your cut", value = "Your cut was {:,}. :moneybag:".format(int(boost.gold*0.18)), inline=True)
-                                                embed_message.set_footer(text="Gino's Mercenaries")
-                                            else:
-                                                embed_message = discord.Embed(title="Boost ended", color=0x32cd32)#7FFF00
-                                                embed_message.add_field(name="Thank you!", value = "The boost has been validated by {}. It will be added to the balance shortly.\nThank you for boosting with us!".format(boost.advertiser.mention), inline=False)
-                                                embed_message.set_footer(text="Gino's Mercenaries")
-                                            await boost.dps_in[3].create_dm()
-                                            await boost.dps_in[3].dm_channel.send(embed = embed_message)
                                     else:
                                         await message.remove_reaction(emoji, user)
                                 if emoji == self.denied_emo:
@@ -1452,7 +1306,6 @@ class MainClient(discord.Client):
                         embed_rl.set_footer(text="Gino's Mercenaries")
                         await user.create_dm()
                         await user.dm_channel.send(embed = embed_rl)
-
 
         except:
                 err = traceback.format_exc()

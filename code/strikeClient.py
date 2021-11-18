@@ -28,9 +28,9 @@ class strikeClient(discord.Client):
         self.__day_id = 302188753206771714
         self.testy = False
         self.to_update_members = []
-        self.booking_id = 1700 + 1
-        self.ticket_id = 1399 + 1
-        self.help_id = 101 + 1
+        self.booking_id = 1800 + 1
+        self.ticket_id = 1500 + 1
+        self.help_id = 110 + 1
         self.giveaway_list = []
         self.real_list_nitro = []
         self.list_nitro_str = ""

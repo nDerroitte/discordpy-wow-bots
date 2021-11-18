@@ -1,7 +1,6 @@
 from datetime import datetime
 import traceback
 import json
-import requests
 import discord
 import os
 import asyncio
@@ -163,10 +162,7 @@ class pvpClient(discord.Client):
                                     embed_message = discord.Embed(title="Gold Collection: {} - {}".format(boost.realm.capitalize(), boost.faction.capitalize()), color=0x61b3f2)#7FFF00
                                     embed_message.add_field(name="Advertiser", value = "{} - {}".format(boost.advertiser.mention, boost.advertiser.display_name))
                                     embed_message.add_field(name="Character to whisp", value = boost.who_to_w, inline=False)
-                                    if boost.inhouse:
-                                        embed_message.add_field(name="Gold", value = "{}k".format(boost.gold * 0.85/1000), inline=False)
-                                    else:
-                                        embed_message.add_field(name="Gold", value = "{}k".format(boost.gold/1000), inline=False)
+                                    embed_message.add_field(name="Gold", value = "{}k".format(boost.gold/1000), inline=False)
                                     embed_message.set_footer(text="Gino's Mercenaries")
                                     boost.message_collecting = await gold_collecting_chan.send(embed = embed_message)
                                     await boost.message_collecting.add_reaction(self.allowed_emo)
@@ -417,10 +413,7 @@ class pvpClient(discord.Client):
                                 embed_message = discord.Embed(title="Gold Collection: {} - {}".format(boost.realm.capitalize(), boost.faction.capitalize()), color=0x61b3f2)#7FFF00
                                 embed_message.add_field(name="Advertiser", value = "{} - {}".format(boost.advertiser.mention, boost.advertiser.display_name))
                                 embed_message.add_field(name="Character to whisp", value = boost.who_to_w, inline=False)
-                                if boost.inhouse:
-                                    embed_message.add_field(name="Gold", value = "{}k".format(boost.gold * 0.85/1000), inline=False)
-                                else:
-                                    embed_message.add_field(name="Gold", value = "{}k".format(boost.gold/1000), inline=False)
+                                embed_message.add_field(name="Gold", value = "{}k".format(boost.gold/1000), inline=False)
                                 embed_message.set_footer(text="Gino's Mercenaries")
                                 boost.message_collecting = await gold_collecting_chan.send(embed = embed_message)
                                 await boost.message_collecting.add_reaction(self.allowed_emo)
@@ -501,10 +494,7 @@ class pvpClient(discord.Client):
                                         embed_message_adv.add_field(name="Who to mail", value = "MercsAlly-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
                                     else:
                                         embed_message_adv.add_field(name="Who to mail", value = "MercsHorde-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
-                                    if boost.inhouse:
-                                        embed_message_adv.add_field(name="Gold to send", value = "{:,}".format(boost.gold * 0.85))
-                                    else:
-                                        embed_message_adv.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
+                                    embed_message_adv.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
                                 if gold == "Nbalance":
                                     ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
                                 else:
@@ -630,10 +620,7 @@ class pvpClient(discord.Client):
                                     gc_em.add_field(name="Who to mail", value = "MercsAlly-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
                                 else:
                                     gc_em.add_field(name="Who to mail", value = "MercsHorde-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
-                                if boost.inhouse:
-                                    gc_em.add_field(name="Gold to send", value = "{:,}".format(boost.gold * 0.85))
-                                else:
-                                    gc_em.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
+                                gc_em.add_field(name="Gold to send", value = "{:,}".format(boost.gold))
                                 gc_em.set_footer(text="Gino's Mercenaries")
                                 await user.create_dm()
                                 await user.dm_channel.send(embed=gc_em)
@@ -832,10 +819,7 @@ class pvpClient(discord.Client):
                                                 embed_message_adv.add_field(name="Who to mail", value = "MercsAlly-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
                                             else:
                                                 embed_message_adv.add_field(name="Who to mail", value = "MercsHorde-{}".format(main_connected_realm(boost.realm).capitalize()), inline=True)
-                                            if boost.inhouse:
-                                                embed_message_adv.add_field(name="Gold to send", value = "{:,} {}".format(boost.gold * 0.85, self.coin_emo))
-                                            else:
-                                                embed_message_adv.add_field(name="Gold to send", value = "{:,} {}".format(boost.gold, self.coin_emo))
+                                            embed_message_adv.add_field(name="Gold to send", value = "{:,} {}".format(boost.gold, self.coin_emo))
                                         if gold == "Nbalance":
                                             ack = sr.add_balance(user_name_serv[0], user_name_serv[1], ally_bool)
                                         else:

@@ -464,14 +464,10 @@ class boostOb:
                 self.role_dps.append(self.armor_stack.capitalize())
 
     def cut(self):
-        if self.inhouse:
-            if self.no_adv_cut:
-                cut = int(self.gold*0.85*0.22)
-            else:
-                cut = int(self.gold*0.85*0.2175)
+        if self.no_adv_cut:
+            cut = int(self.gold*0.225)
+        elif self.inhouse:
+            cut = int(self.gold*0.2118)
         else:
-            if self.no_adv_cut:
-                cut = int(self.gold*0.22)
-            else:
-                cut = int(self.gold*0.18)
+            cut = int(self.gold*0.18)
         return cut

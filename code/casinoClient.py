@@ -1,4 +1,5 @@
 from datetime import datetime
+import random
 import discord
 import os
 import asyncio
@@ -18,14 +19,19 @@ class casinoClient(discord.Client):
         self.__me_win = False
         self.__day_id = 302188753206771714
         self.testy = False
+        self.lottery_message = ""
         self.lottery_pot = 0
         self.lottery_1st = 0
         self.lottery_2nd = 0
         self.lottery_3rd = 0
+        self.lottery_winners = []
         self.lottery_ticket = 0
         self.lottery_entries = 0
         self.lottery_default_ticket = 30000
         self.lottery_time_remaining =  0
+        self.lottery_players = []
+        self.lottery_state = "close"
+        self.next_run = datetime.now() + timedelta(minutes= 1 )
         if self.testy == False:
             # Gino
             self.__bot_id = 725313938895667210
@@ -51,6 +57,7 @@ class casinoClient(discord.Client):
         self.chip_emo = discord.utils.get(self.__guild.emojis, name="chip")
         self.coin_emo = discord.utils.get(self.__guild.emojis, name="gold_coin")
         print("ready")
+        await self.timer()
 
     ###########################################################################
     #                              On message receive                         #
@@ -74,6 +81,23 @@ class casinoClient(discord.Client):
                 user_id = message.author.id
                 if user_id == self.__day_id:
                     await message.channel.send("Pong. :smile:")
+             # Ping
+            elif message.content.lower() == "close_lottery":
+                user_id = message.author.id
+                if user_id == self.__day_id:
+                    str_time_remaining = "Finish"
+                    self.lottery_winners = self.draw_winner()
+                    lottery_embed = await self.lottery_embed(str_time_remaining, winning_state=True)
+                    await self.lottery_message.edit(embed = lottery_embed)
+                    await self.lottery_message.clear_reactions()
+                    help_chan = discord.utils.get(self.__guild.channels, id=794724553661480960, type=discord.ChannelType.text)
+                    winner_1 = self.lottery_winners[0].mention if self.lottery_winners[0] != "No winner." else self.lottery_winners[0]
+                    winner_2 = self.lottery_winners[1].mention if self.lottery_winners[1] != "No winner." else ''
+                    winner_3 = self.lottery_winners[2].mention if self.lottery_winners[2] != "No winner." else ''
+                    await self.lottery_message.channel.send(f"{winner_1} {winner_2} {winner_3} Congratulations :tada:. Please open a ticket in {help_chan.mention} to claim your gold.\nThank you all for playing !")
+                    self.finish_lottery()
+                    await message.channel.send("Done. :smile:")
+
             # love Dench
             elif message.content.lower() == "loveDench":
                 user_id = message.author.id
@@ -128,21 +152,50 @@ class casinoClient(discord.Client):
             reload_dict()
             await message.add_reaction(self.allowed_emo)
         
+        elif message.channel.name == "private-bot-commands" and message.content.startswith("!close_lottery"):
+            if self.lottery_state == "close":
+                await message.channel.send("There is no lottery ongoing")
+            else:
+                str_time_remaining = "Finish"
+                self.lottery_winners = self.draw_winner()
+                lottery_embed = await self.lottery_embed(str_time_remaining, winning_state=True)
+                await self.lottery_message.edit(embed = lottery_embed)
+                await self.lottery_message.clear_reactions()
+                help_chan = discord.utils.get(self.__guild.channels, id=794724553661480960, type=discord.ChannelType.text)
+                winner_1 = self.lottery_winners[0].mention if self.lottery_winners[0] != "No winner." else self.lottery_winners[0]
+                winner_2 = self.lottery_winners[1].mention if self.lottery_winners[1] != "No winner." else ""
+                winner_3 = self.lottery_winners[2].mention if self.lottery_winners[2] != "No winner." else ""
+                await self.lottery_message.channel.send(f"{winner_1} {winner_2} {winner_3} Congratulations !!!! :tada:. Please open a ticket in {help_chan.mention} to claim your gold !\nThank you all for playing")
+                self.finish_lottery()
+                await message.channel.send("Done. Please wait 60 seconds before starting a new lottery.")
         # lottery
         elif message.channel.name == "private-bot-commands" and message.content.startswith("!lottery"):
-            sr = sheetReader()
-            self.lottery_time_remaining = sr.close_lottery_date() - datetime.now() 
-            str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
-            lottery_chan = discord.utils.get(self.__guild.channels, id=self.__lottery_id, type=discord.ChannelType.text)
-            self.lottery_ticket = self.lottery_default_ticket
-            self.lottery_pot = self.lottery_ticket
-            self.lottery_entries = 0
-            self.lottery_1st, self.lottery_2nd, self.lottery_3rd = define_lottery_pot(self.lottery_pot)
-            
-            lottery_embed = await self.lottery_embed(str_time_remaining)
-            tmp = await lottery_chan.send(embed= lottery_embed)
-            await tmp.add_reaction(self.chip_emo)
-            await message.add_reaction(self.allowed_emo)
+            if self.lottery_state == "open":
+                await message.channel.send("There is already a lottery ongoing. Please start by closing it using the command: ```!close_lottery```")
+            else:
+                self.lottery_ticket = self.lottery_default_ticket
+                try:
+                    val = message.content.split(" ")
+                    gold = val[1]
+                    gold = int(gold)
+                    self.lottery_ticket = gold
+                except:
+                    pass
+                self.lottery_state = "open"
+                sr = sheetReader()
+                self.lottery_time_remaining = sr.close_lottery_date() - datetime.now() 
+                str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
+                lottery_chan = discord.utils.get(self.__guild.channels, id=self.__lottery_id, type=discord.ChannelType.text)
+                self.lottery_pot = self.lottery_ticket
+                self.lottery_entries = 0
+                self.lottery_1st, self.lottery_2nd, self.lottery_3rd = define_lottery_pot(self.lottery_pot)
+                
+                lottery_embed = await self.lottery_embed(str_time_remaining)
+                self.lottery_message = await lottery_chan.send(embed= lottery_embed)
+                await self.lottery_message.add_reaction(self.chip_emo)
+                await message.add_reaction(self.allowed_emo)
+                self.next_run = datetime.now() + timedelta(minutes= 1 )
+                await self.timer()
 
         ############################## Casgino $$ #############################
         elif message.channel.id in self.__bet_chan_list_id and message.content.startswith("!bet "):
@@ -809,6 +862,54 @@ class casinoClient(discord.Client):
 
 
                         iter += 1
+        
+                if message.channel.id == self.__lottery_id and emoji == self.chip_emo and message.id == self.lottery_message.id:
+                    str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
+                    lottery_embed = await self.lottery_embed(str_time_remaining, working=True)
+                    await self.lottery_message.edit(embed = lottery_embed) 
+                    sr = sheetReader()
+                    # Checking gold
+                    name = user.display_name
+                    user_name_serv = parseName(name)
+                    balance_gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                    if balance_gold == "Nbalance":
+                        await message.remove_reaction(emoji,user)
+                        await user.create_dm()
+                        embed_message = discord.Embed(title="Not enough in balance", description="You don't have enough gold in your balance to join the lottery.", color=0xdc143c)#7FFF00
+                        embed_message.set_footer(text="Gino's Mercenaries")
+                        await user.dm_channel.send(embed=embed_message)
+                    else:
+                        balance_gold = balance_gold.replace(",", "")
+                        balance_gold = int(balance_gold)
+                        if balance_gold < self.lottery_ticket:
+                            await message.remove_reaction(emoji,user)
+                            await user.create_dm()
+                            embed_message = discord.Embed(title="Not enough in balance", description="You don't have enough gold in your balance to join the lottery.", color=0xdc143c)#7FFF00
+                            embed_message.set_footer(text="Gino's Mercenaries")
+                            await user.dm_channel.send(embed=embed_message)
+                        else:
+                            sr.add_gold(user_name_serv[0],user_name_serv[1], self.lottery_ticket * -1)
+                            # All good, gold has been deducted
+                            ## Updating lotery variable
+                            self.lottery_pot += self.lottery_ticket
+                            self.lottery_entries += 1
+                            self.lottery_1st, self.lottery_2nd, self.lottery_3rd = define_lottery_pot(self.lottery_pot)
+                            self.lottery_time_remaining = sr.close_lottery_date() - datetime.now() 
+                            str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
+                            self.lottery_players.append(user)
+                            
+                            ## Updating embed
+                            lottery_embed = await self.lottery_embed(str_time_remaining)
+                            await self.lottery_message.edit(embed = lottery_embed) 
+                            await message.remove_reaction(emoji,user)
+
+                            # End message user
+                            balance_gold = sr.get_gold(user_name_serv[0],user_name_serv[1])
+                            await user.create_dm()
+                            embed_message = discord.Embed(title="Good luck!", description=f"Thank you for playing in our lottery.\n Make sure to check {channel.mention} in {str_time_remaining}. You can enter the lottery again if you wish to increase your chance!", color=0x00b967)#7FFF00
+                            embed_message.add_field(name="Your balance", value = f"You currently have {balance_gold} gold remaining in your balance.")
+                            embed_message.set_footer(text="Gino's Mercenaries")
+                            await user.dm_channel.send(embed=embed_message)
         except:
             err = traceback.format_exc()
             embed_error = discord.Embed(title="New error detected!" ,color=0x61b3f2)#7FFF0
@@ -823,12 +924,90 @@ class casinoClient(discord.Client):
     ###########################################################################
     # lottery embed
 
-    async def lottery_embed(self, str_time_remaining):
-        lottery_em = discord.Embed(title="Gino {} Lottery".format(datetime.now().strftime("%B")), description="Up to {:,} {} to win! Join by reacting with {}.".format(self.lottery_1st, self.coin_emo, self.chip_emo), color=0x00b967 )
+    async def lottery_embed(self, str_time_remaining, winning_state = False, working = False):
+        if winning_state:
+            lottery_em = discord.Embed(title="Gino {} Lottery - Finished".format(datetime.now().strftime("%B")), description="Congratulations to our winners :tada:".format(self.lottery_1st, self.coin_emo, self.chip_emo), color=0x00b967 )
+        else:
+            lottery_em = discord.Embed(title="Gino {} Lottery".format(datetime.now().strftime("%B")), description="Up to {:,} {} to win! Join by reacting with {}.".format(self.lottery_1st, self.coin_emo, self.chip_emo), color=0x00b967 )
         lottery_em.add_field(name="Entries:", value="{:,} {}".format(self.lottery_entries, self.chip_emo), inline = True)
         lottery_em.add_field(name="Ticket price:", value="{:,} {}".format(self.lottery_ticket, self.coin_emo), inline = True)
         lottery_em.add_field(name="\u200b", value="\u200b", inline = True)
-        lottery_em.add_field(name="Prizes:", value=":first_place: {0:,} {1} \n :second_place: {2:,} {1}\n:third_place: {3:,} {1}".format(self.lottery_1st, self.coin_emo, self.lottery_2nd, self.lottery_3rd), inline = False)
+        if winning_state:
+            winner_1 = self.lottery_winners[0].display_name if self.lottery_winners[0] != "No winner." else self.lottery_winners[0]
+            winner_2 = self.lottery_winners[1].display_name if self.lottery_winners[1] != "No winner." else self.lottery_winners[1]
+            winner_3 = self.lottery_winners[2].display_name if self.lottery_winners[2] != "No winner." else self.lottery_winners[2]
+            lottery_em.add_field(name="Prizes:", value=":first_place: {0:,} {1} - {4} \n :second_place: {2:,} {1} - {5}\n:third_place: {3:,} {1} - {6}".format(self.lottery_1st, self.coin_emo, self.lottery_2nd, self.lottery_3rd, winner_1, winner_2, winner_3), inline = False)
+        else:
+            lottery_em.add_field(name="Prizes:", value=":first_place: {0:,} {1} \n :second_place: {2:,} {1}\n:third_place: {3:,} {1}".format(self.lottery_1st, self.coin_emo, self.lottery_2nd, self.lottery_3rd), inline = False)
         lottery_em.add_field(name="Time remaining", value=str_time_remaining)
+        if working:
+            lottery_em.add_field(name="Adding new entry", value="Working :gear:")
         lottery_em.set_footer(text="Gino's Mercenaries - To receive the gold on a specific realm, an extra 5% of your win will be ask.")
         return lottery_em
+    
+    def draw_winner(self):
+        if len(self.lottery_players) >= 3:
+            return random.sample(self.lottery_players, 3)  
+        else:
+            winners = random.sample(self.lottery_players, len(self.lottery_players))
+            while len(winners) < 3:
+                winners.append("No winner.")
+            return winners
+
+    async def update_lottery(self):
+        sr = sheetReader()
+        self.lottery_time_remaining = sr.close_lottery_date() - datetime.now() 
+        print(self.lottery_time_remaining.total_seconds())
+        print(pretty_time_remaining(self.lottery_time_remaining.total_seconds()))
+        if self.lottery_time_remaining.total_seconds() > 0:
+            str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
+            ## Updating embed
+            lottery_embed = await self.lottery_embed(str_time_remaining)
+            await self.lottery_message.edit(embed = lottery_embed)
+        else:
+            str_time_remaining = "Finish"
+            self.lottery_winners = self.draw_winner()
+            lottery_embed = await self.lottery_embed(str_time_remaining, winning_state=True)
+            await self.lottery_message.edit(embed = lottery_embed)
+            await self.lottery_message.clear_reactions()
+            help_chan = discord.utils.get(self.__guild.channels, id=794724553661480960, type=discord.ChannelType.text)
+            winner_1 = self.lottery_winners[0].mention if self.lottery_winners[0] != "No winner." else self.lottery_winners[0]
+            winner_2 = self.lottery_winners[1].mention if self.lottery_winners[1] != "No winner." else ''
+            winner_3 = self.lottery_winners[2].mention if self.lottery_winners[2] != "No winner." else ''
+            await self.lottery_message.channel.send(f"{winner_1} {winner_2} {winner_3} Congratulations :tada:. Please open a ticket in {help_chan.mention} to claim your gold. \nThank you all for playing!")
+            self.finish_lottery()
+
+
+    def finish_lottery(self):
+        self.lottery_message = ""
+        self.lottery_pot = 0
+        self.lottery_1st = 0
+        self.lottery_2nd = 0
+        self.lottery_3rd = 0
+        self.lottery_winners = []
+        self.lottery_ticket = 0
+        self.lottery_entries = 0
+        self.lottery_default_ticket = 30000
+        self.lottery_time_remaining =  0
+        self.lottery_players = []
+        self.lottery_state = "close"
+
+    async def timer(self, do_it_now = False):
+        if self.lottery_state == "close":
+            print("Finishing timer()")
+            return
+        elif do_it_now == False:
+            delta_t = self.next_run - datetime.now()
+            sec2wait = delta_t.seconds
+            if sec2wait >= 0:
+                await asyncio.sleep(sec2wait)
+            print("done")  
+        if self.lottery_state == "close":
+            print("Finishing timer()")
+            return
+
+
+        #str_time_remaining = pretty_time_remaining(self.lottery_time_remaining.total_seconds())
+        await self.update_lottery()
+        self.next_run = self.next_run + timedelta(minutes=1)
+        await self.timer()

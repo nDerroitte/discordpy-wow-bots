@@ -168,7 +168,7 @@ class RoleClient(discord.Client):
             await message.channel.send("I've sent you your balance by DM {}.".format(message.author.mention))
             embed_message = discord.Embed(title="Your balance", color=0x32cd32)#7FFF00
             if gold == "Nbalance":
-                embed_message.add_field(name="The following nickname is not in the balance currently.", value = "{}".format(name), inline=True)
+                embed_message.add_field(name="The following nickname is not in the balance currently. You will be added automatically when you do your first boost this cycle.", value = "{}".format(name), inline=True)
                 embed_message.set_footer(text="Gino's Mercenaries")
                 await message.author.dm_channel.send(embed=embed_message)
             else:
@@ -407,20 +407,20 @@ class RoleClient(discord.Client):
                                 roles_added.append("DPS Prestige")
                                 dps_prestige = discord.utils.get(self.__guild.roles, name='DPS Prestige')
                                 await message.author.add_roles(dps_prestige)
-                        if rio_tank > 2150 or rio_heal > 2150 or rio_dps > 2150:
+                        if rio_tank > 2300 or rio_heal > 2300 or rio_dps > 2300:
                             if "m+ allstars" not in roles_str:
                                 roles_added.append("M+ AllStars")
                                 m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
                                 await message.author.add_roles(m_all_star)
-                            if rio_heal > 2150 and "healer all star" not in roles_str:
+                            if rio_heal > 2300 and "healer all star" not in roles_str:
                                 roles_added.append("Healer All Star")
                                 healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
                                 await message.author.add_roles(healer_all_star)
-                            if rio_tank > 2150 and "tank all star" not in roles_str:
+                            if rio_tank > 2300 and "tank all star" not in roles_str:
                                 roles_added.append("Tank All Star")
                                 tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
                                 await message.author.add_roles(tank_all_star)
-                            if rio_dps > 2150 and "dps all star" not in roles_str:
+                            if rio_dps > 2300 and "dps all star" not in roles_str:
                                 roles_added.append("DPS All Star")
                                 dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
                                 await message.author.add_roles(dps_all_star)
@@ -574,16 +574,16 @@ class RoleClient(discord.Client):
                                     if rio_dps > 1950:
                                         dps_prestige = discord.utils.get(self.__guild.roles, name='DPS Prestige')
                                         await message.author.add_roles(dps_prestige)
-                                if rio_tank > 2150 or rio_heal > 2150 or rio_dps > 2150:
+                                if rio_tank > 2300 or rio_heal > 2300 or rio_dps > 2300:
                                     m_all_star = discord.utils.get(self.__guild.roles, name='M+ AllStars')
                                     await message.author.add_roles(m_all_star)
-                                    if rio_heal > 2150:
+                                    if rio_heal > 2300:
                                         healer_all_star = discord.utils.get(self.__guild.roles, name='Healer All Star')
                                         await message.author.add_roles(healer_all_star)
-                                    if rio_tank > 2150:
+                                    if rio_tank > 2300:
                                         tank_all_star = discord.utils.get(self.__guild.roles, name='Tank All Star')
                                         await message.author.add_roles(tank_all_star)
-                                    if rio_dps > 2150:
+                                    if rio_dps > 2300:
                                         dps_all_star = discord.utils.get(self.__guild.roles, name='DPS All Star')
                                         await message.author.add_roles(dps_all_star)
                         if "raider" in channel.name:
@@ -619,9 +619,9 @@ class RoleClient(discord.Client):
                         howpaid_chan = discord.utils.get(self.__guild.channels, name='💰how-do-i-get-paid', type=discord.ChannelType.text)
                         embed_message = discord.Embed(title="Welcome!", color=0x61b3f2, description="You've been succesfully accepted as a booster in our community!")#7FFF00
                         embed_message.add_field(name="Verification", value="You’ve been renamed in the community Discord. Please check if the name corresponds to your character. You will be paid based on said nickname.\nYou’ve also had roles added corresponding to what you can boost. If you think you are missing some or want to apply for more roles, please check {} for M+ roles and {} for other roles.".format(mm_roles_chan.mention, other_role_chan.mention),inline=False)
-                        embed_message.add_field(name="Adding yourself to the balance", value="The first thing you should do, is to add yourself to the balance sheet. Please use the command **!addally** or **!addhorde** (depending on your faction) in {}. **You only need to do this once!**".format(add_balance_chan.mention), inline=False)
+                        embed_message.add_field(name="Adding yourself to the balance", value="You will be added to the balance when you complete your first boost with us.".format(add_balance_chan.mention), inline=False)
                         embed_message.add_field(name="Applying for a boost", value="The boosts will be posted boost-announcement channel. In most cases, you simply have to react with the emoji of your role to apply ({} {} {}). **If you don't see your roles under the boost message, you arrived too late.**\nFor some specific boosts (PVP for example), you may have to send a DM to the advertiser. This will be stated in the announcement.".format(self.dps_emo,self.tank_emo,self.heal_emo),inline=False)
-                        embed_message.add_field(name="Getting your gold", value="Having boosters all over Europe, you will get paid every 3-4 weeks, at the end of the cycle. You can find more information on payment on {} which also contains the next payment date.\nTo check the gold you currently own in the community, please refer to {} once you've added yourself to the balance.".format(howpaid_chan.mention, check_balance_chan.mention), inline=False)
+                        embed_message.add_field(name="Getting your gold", value="Having boosters all over Europe, you will get paid every 3-4 weeks, at the end of the cycle. You can find more information on payment on {} which also contains the next payment date.\nTo check the gold you currently own in the community, please refer to {} once you have completed your first boost.".format(howpaid_chan.mention, check_balance_chan.mention), inline=False)
                         embed_message.set_footer(text="Gino's Mercenaries")
                         await message.author.create_dm()
                         await message.author.dm_channel.send(embed= embed_message)
