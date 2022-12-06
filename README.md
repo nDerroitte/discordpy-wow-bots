@@ -1,6 +1,11 @@
 # Bot stuff
 
-This is a repo about making a bot to optimise a World of Warcraft gold boosting community generating hundreds of milions of gold, in a shitty way.
+This is a repo about making a bot to optimise a World of Warcraft gold boosting community generating hundreds of milions of gold.  
+
+**I moved the project to [discordjs](https://github.com/nDerroitte/discordjs-bots).**
+The discord.py lib is not up-to-date with the lastest change and addition in the discord API. I moved this project to the JS library : discordjs. That consisted in basically rewriting the entire project from scratch. 
+This code is therefore not maintained + poorly written. See the code status.
+
 
 ## How it works
 
