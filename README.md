@@ -56,6 +56,7 @@ Discord API can be found [here](https://discordpy.readthedocs.io/en/stable/api.h
 
 ## Code status 
 
+TLDR:  Code refactoring is super needed buuuuuut I moved the project to discordjs so it will never happen.  
 Most of the code should be rewritten. I started this project 1 year and a half ago. Most of the time working on this project is spent cringing about how bad part of the code is. 
 The 8000+ line of code could probably be reduced to 4000-5000 by introducing more function and avoid code copy/pasting.
 
