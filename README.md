@@ -30,7 +30,7 @@ It just helped making a lot of people very rich in one (if not the) most popular
 
 ## Install
 
-To run the code, one only need the ```discord``` python package.
+To run the code, one only need the ```discord.py``` python package.
 
 To make the scripts run 24/7 I used a Amazon EC2 server with the ```forever``` javascript package. This was probably not the best way to do that.
 
