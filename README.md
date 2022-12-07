@@ -29,7 +29,7 @@ For legal purposes, let's obviously add that :
 *As the community has no interest in doing RMT (Real Money Transaction, aka selling real gold for €), no one actually gain 11.400€ from this bot.
 It just helped making a lot of people very rich in one (if not the) most popular multiplayer role-playing game.*   
 
-**Update december 2022:** The business slowed by a significant amount in Jully 2022, after Blizzard tried to ban, with the help of discord, most of the boosting communities, with little success. The interest of the bot also varies with World of Warcraft ingame content (which is high atm with the new extension that just got out). The total amount of gold it generated is probably close the 300M (30k€)
+**Update december 2022:** The business slowed by a significant amount in Jully 2022, after Blizzard tried to ban, with the help of discord, most of the boosting communities, with little success. The interest of the bot also varies with World of Warcraft ingame content (which is high atm with the new extension that just got out). The total amount of gold it generated is probably close the 300M gold.
 
 ## Install
 
