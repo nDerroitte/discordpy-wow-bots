@@ -23,10 +23,15 @@ On average, each booster (there are 4 of them in a boost) get 18% of the total p
 The bot has been running since Febuary 2020. This makes (as of September 2021) a total of 228.000€.
 10% of that total can be counted has pure benifts, the 90 other percent are redistributed to the actors of the community.
 
-Buying gold in World of Warcraft can be done in blizzard shop. Selling it is against the game rules. A good rule of thumb is to consider that the gold can be sold under the table for roughly half its price, ie for 11.400€
+Buying gold in World of Warcraft can be done in blizzard shop. Selling it is against the game rules. A good rule of thumb is to consider that the gold can be sold under the table for roughly half its price, ie for about 11.400€.
 
-As the community has no interest in doing RMT (Real Money Transaction, aka selling real gold for €), no one actually gain 11.400€ from this bot.
-It just helped making a lot of people very rich in one (if not the) most popular multiplayer role-playing game.
+For legal purposes, let's obviously add that :  
+*As the community has no interest in doing RMT (Real Money Transaction, aka selling real gold for €), no one actually gain 11.400€ from this bot.
+It just helped making a lot of people very rich in one (if not the) most popular multiplayer role-playing game.*   
+
+lol
+
+
 
 ## Install
 
