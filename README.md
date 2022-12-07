@@ -20,7 +20,7 @@ On average, each booster (there are 4 of them in a boost) get 18% of the total p
 
 200k gold in WoW is roughly 20€. Every month, this bot helps generating about 120M+ gold, which represents 12.000€.
 
-The bot has been running since Febuary 2020. This makes (as of September 2021) a total of 228.00€.
+The bot has been running since Febuary 2020. This makes (as of September 2021) a total of 228.000€.
 10% of that total can be counted has pure benifts, the 90 other percent are redistributed to the actors of the community.
 
 Buying gold in World of Warcraft can be done in blizzard shop. Selling it is against the game rules. A good rule of thumb is to consider that the gold can be sold under the table for roughly half its price, ie for 11.400€
