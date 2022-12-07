@@ -28,10 +28,8 @@ Buying gold in World of Warcraft can be done in blizzard shop. Selling it is aga
 For legal purposes, let's obviously add that :  
 *As the community has no interest in doing RMT (Real Money Transaction, aka selling real gold for €), no one actually gain 11.400€ from this bot.
 It just helped making a lot of people very rich in one (if not the) most popular multiplayer role-playing game.*   
-
-lol
-
-
+...
+;)
 
 ## Install
 
