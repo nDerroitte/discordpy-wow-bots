@@ -18,18 +18,9 @@ On average, each booster (there are 4 of them in a boost) get 18% of the total p
 
 ## Gold reference
 
-200k gold in WoW is roughly 20€. Every month, this bot helps generating about 120M+ gold, which represents 12.000€.
+200k gold in WoW is roughly 20€. At its prime, this bot helped generating about 120M+ gold per month, aka about 12.000€. 10% of that total can be counted has pure profits, the 90 other percent are redistributed to the actors of the community.
 
-The bot has been running since Febuary 2020. This makes (as of September 2021) a total of 228.000€.
-10% of that total can be counted has pure benifts, the 90 other percent are redistributed to the actors of the community.
-
-Buying gold in World of Warcraft can be done in blizzard shop. Selling it is against the game rules. A good rule of thumb is to consider that the gold can be sold under the table for roughly half its price, ie for about 11.400€.
-
-For legal purposes, let's obviously add that :  
-*As the community has no interest in doing RMT (Real Money Transaction, aka selling real gold for €), no one actually gain 11.400€ from this bot.
-It just helped making a lot of people very rich in one (if not the) most popular multiplayer role-playing game.*   
-
-**Update december 2022:** The business slowed by a significant amount in Jully 2022, after Blizzard tried to ban, with the help of discord, most of the boosting communities, with little success. The interest of the bot also varies with World of Warcraft ingame content (which is high atm with the new extension that just got out). The total amount of gold it generated is probably close the 300M gold.
+This bot runned for about 2,5 years before the community it was served on was shut down by Blizzard. It helped generating about 3 billions gold, 300M profits, which could probably be traded for about 20k€. As the community has no interest in doing RMT (Real Money Transaction, aka selling real gold for €), no one actually gain € from this bot. It just helped making a lot of people very rich in one (if not the) most popular multiplayer role-playing game.
 
 ## Install
 
